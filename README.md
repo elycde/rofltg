@@ -1,4 +1,4 @@
-# 🚀 RoflTG - Telegram Channel Website
+RoflTG - Санная визитка
 
 ## ✨ Особенности
 
