@@ -1,0 +1,1609 @@
+<!doctype html>
+<html lang="ru">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>fromoldnuke7 — Telegram</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* === Цвета и фон === */
+    :root {
+      --bg-0: #06070a;
+      /* darker base */
+      --bg-1: #0b0f14;
+      /* darker accent */
+      --text: #dfe9f8;
+      /* softer white */
+      --muted: #8aa0b2;
+      --glass: rgba(255, 255, 255, 0.04);
+      --glass-border: rgba(255, 255, 255, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color: var(--text);
+      background: radial-gradient(1200px 600px at 10% 10%, rgba(10, 14, 20, 0.6), transparent 20%), var(--bg-0);
+      /* allow page to scroll so the slider is visible */
+      overflow-y: auto;
+    }
+
+    /* === Лоадер === */
+    .loader {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(180deg, rgba(6, 7, 10, 0.9), rgba(11, 15, 20, 0.92));
+      transition: opacity 360ms ease, visibility 360ms ease;
+    }
+
+    .loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .loader-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px
+    }
+
+    /* Ripple-style concentric loader */
+    .ripple-wrapper {
+      width: 104px;
+      height: 104px;
+      position: relative;
+      display: inline-grid;
+      place-items: center;
+    }
+
+    .ripple {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #9ec9ff, #6c8bff);
+      box-shadow: 0 10px 30px rgba(76, 106, 255, 0.12);
+      transform: scale(0.2);
+      opacity: 0;
+    }
+
+    .ripple.r1 {
+      animation: ripple 1.8s cubic-bezier(.2, .8, .2, 1) infinite;
+    }
+
+    .ripple.r2 {
+      animation: ripple 1.8s cubic-bezier(.2, .8, .2, 1) infinite;
+      animation-delay: 0.32s;
+    }
+
+    .ripple.r3 {
+      animation: ripple 1.8s cubic-bezier(.2, .8, .2, 1) infinite;
+      animation-delay: 0.64s;
+    }
+
+    .ripple-core {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #cde3ff, #7b92ff);
+      box-shadow: 0 6px 18px rgba(108, 139, 255, 0.28);
+    }
+
+    .loader-text {
+      color: var(--muted);
+      font-size: 14px;
+      letter-spacing: .2px;
+      position: relative;
+      overflow: hidden;
+      margin-top: 6px
+    }
+
+    .loader-text::after {
+      content: '';
+      position: absolute;
+      left: -40%;
+      top: 0;
+      height: 100%;
+      width: 60%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+      transform: skewX(-12deg);
+      animation: shimmer 1.6s linear infinite
+    }
+
+    @keyframes ripple {
+      0% {
+        transform: scale(0.22);
+        opacity: 0.95
+      }
+
+      40% {
+        transform: scale(1.12);
+        opacity: 0.28
+      }
+
+      100% {
+        transform: scale(2.6);
+        opacity: 0
+      }
+    }
+
+    @keyframes shimmer {
+      to {
+        left: 140%
+      }
+    }
+
+    /* Respect users' reduced motion preference */
+    @media (prefers-reduced-motion: reduce) {
+      .ripple {
+        animation: none !important;
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .loader-text::after {
+        display: none
+      }
+    }
+
+    /* === Аврора фон === */
+    .aurora {
+      position: fixed;
+      inset: -20% -10% -10% -10%;
+      z-index: -1;
+      filter: blur(60px) saturate(120%);
+      pointer-events: none;
+    }
+
+    .aurora span {
+      position: absolute;
+      width: 60vw;
+      height: 60vw;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(91, 140, 255, .35), transparent 60%),
+        radial-gradient(circle at 70% 70%, rgba(0, 212, 255, .28), transparent 55%),
+        radial-gradient(circle at 50% 50%, rgba(123, 91, 255, .32), transparent 50%);
+      mix-blend-mode: screen;
+      opacity: .36;
+      /* dimmer for darker theme */
+      animation: drift var(--t, 20s) ease-in-out infinite alternate;
+    }
+
+    .aurora .a1 {
+      top: 10%;
+      left: -10%;
+      --t: 24s;
+    }
+
+    .aurora .a2 {
+      top: 50%;
+      right: -15%;
+      --t: 20s;
+    }
+
+    .aurora .a3 {
+      bottom: -10%;
+      left: 30%;
+      --t: 26s;
+    }
+
+    @keyframes drift {
+      from {
+        transform: translate3d(0, 0, 0) scale(1);
+      }
+
+      to {
+        transform: translate3d(10%, -8%, 0) scale(1.1);
+      }
+    }
+
+    /* === Карточка === */
+    .container {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px 20px 20px;
+      /* Минимальные отступы */
+    }
+
+    .card {
+      width: min(560px, 92vw);
+      background: var(--glass);
+      backdrop-filter: blur(14px) saturate(120%);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+      margin-top: auto;
+      margin-bottom: auto;
+      /* Центрируем карточку вертикально когда контента мало */
+    }
+
+    .snow-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+
+    .header {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .avatar {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 1px solid var(--glass-border);
+      background: linear-gradient(145deg, rgba(123, 91, 255, 0.22), rgba(0, 212, 255, 0.14));
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    .title {
+      margin: 0 0 6px 0;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    /* Mobile friendliness: allow long channel titles to wrap and scale down */
+    .title {
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      white-space: normal;
+      line-height: 1.08;
+    }
+
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .stats {
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .stats-wrap {
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .metrics {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .metric {
+      font-size: 13px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      padding: 6px 10px;
+      border-radius: 10px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--glass-border);
+    }
+
+    .badge .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #00d4ff;
+      box-shadow: 0 0 12px rgba(0, 212, 255, 0.8);
+    }
+
+    .badge.bump {
+      animation: bump 400ms ease;
+    }
+
+    @keyframes bump {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.06);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .button {
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-weight: 600;
+      color: #6ad5ff;
+      text-decoration: none;
+      background: linear-gradient(135deg, #74a0ff, #6c8bff 40%, #00d4ff);
+      box-shadow: 0 8px 24px rgba(0, 212, 255, 0.24), 0 4px 12px rgba(107, 139, 255, 0.25);
+      transition: 0.2s;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+    }
+
+    .secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      border: 1px solid var(--glass-border);
+      box-shadow: none;
+    }
+
+    .blue {
+      background: rgba(20, 161, 255, 0.651);
+      color: var(--text);
+      border: 1px solid rgba(116, 160, 255, 0.35);
+      box-shadow: 0 6px 18px rgba(116, 160, 255, 0.12);
+    }
+
+    .footer {
+      margin-top: 20px;
+      color: var(--muted);
+      font-size: 11px;
+      text-align: left;
+    }
+
+    .footer a {
+      color: #2AABEE;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .footer a:visited {
+      color: #2AABEE;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 18px;
+        width: 94vw;
+      }
+
+      .header {
+        grid-template-columns: 72px 1fr;
+        gap: 12px;
+      }
+
+      .avatar {
+        width: 72px;
+        height: 72px;
+      }
+
+      .title {
+        font-size: 20px;
+      }
+
+      .subtitle {
+        font-size: 13px;
+      }
+
+      .actions {
+        gap: 8px;
+      }
+
+      .metrics {
+        gap: 8px;
+      }
+
+      .badge {
+        padding: 6px 10px;
+        font-size: 13px;
+      }
+
+      .ripple-wrapper {
+        width: 72px;
+        height: 72px;
+      }
+
+      .ripple-wrapper {
+        width: 72px;
+        height: 72px;
+      }
+    }
+
+    /* === YouTube slider styles (улучшенный) === */
+    .video-strip-container {
+      width: min(1200px, 96vw);
+      margin: 16px auto 10px;
+      /* Минимальные отступы */
+      z-index: 2;
+      position: relative;
+      /* Убран фон и границы - контейнер невидим */
+      padding: 10px 0;
+      /* Уменьшаем внутренние отступы */
+    }
+
+    /* Заголовок секции видео - компактные отступы */
+    .video-section-header {
+      text-align: left;
+      margin: 32px auto 16px;
+      /* Минимальные отступы */
+      padding: 0 24px;
+      max-width: min(1200px, 96vw);
+      position: relative;
+    }
+
+    .video-section-title {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0 0 8px 0;
+      background: linear-gradient(135deg, #74a0ff, #6c8bff, #00d4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-align: left;
+      letter-spacing: -0.5px;
+    }
+
+    .video-section-subtitle {
+      font-size: 16px;
+      color: var(--muted);
+      margin: 0;
+      font-weight: 500;
+      text-align: left;
+    }
+
+    .video-strip {
+      display: block;
+      position: relative;
+    }
+
+    /* Улучшенные кнопки навигации с лучшим позиционированием */
+    .vs-btn {
+      position: absolute;
+      top: 45%;
+      transform: translateY(-50%);
+      width: 52px;
+      height: 52px;
+      z-index: 10;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+      color: var(--text);
+      border-radius: 16px;
+      cursor: pointer;
+      font-size: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 12px 40px rgba(6, 7, 10, 0.7), 0 4px 12px rgba(116, 160, 255, 0.1);
+      backdrop-filter: blur(12px) saturate(120%);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .vs-left {
+      left: -26px;
+      /* Наполовину высовываем левую кнопку за пределы контейнера (52px / 2 = 26px) */
+    }
+
+    .vs-right {
+      right: -26px;
+      /* Наполовину высовываем правую кнопку за пределы контейнера (52px / 2 = 26px) */
+    }
+
+    .vs-btn:hover {
+      transform: translateY(-50%) scale(1.05);
+      background: linear-gradient(135deg, rgba(116, 160, 255, 0.15), rgba(108, 139, 255, 0.08));
+      box-shadow: 0 16px 50px rgba(6, 7, 10, 0.8), 0 6px 20px rgba(116, 160, 255, 0.2);
+    }
+
+    .vs-btn:active {
+      transform: translateY(-50%) scale(0.95);
+    }
+
+    .vs-btn svg {
+      width: 20px;
+      height: 20px;
+      opacity: 0.95;
+    }
+
+    /* Невидимый трек - только функциональность */
+    .vs-track {
+      display: flex;
+      gap: 18px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      padding: 20px 20px 20px 5px;
+      /* Минимальный левый отступ 5px */
+      background: transparent;
+      /* Убираем фон */
+      border: none;
+      /* Убираем границы */
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory;
+      align-items: start;
+      box-shadow: none;
+      /* Убираем тени */
+      backdrop-filter: none;
+      /* Убираем размытие */
+      position: relative;
+    }
+
+    .vs-track::-webkit-scrollbar {
+      height: 12px;
+      display: none;
+    }
+
+    .vs-track {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .vs-track:focus {
+      outline: none;
+      /* Убираем видимый фокус для невидимого трека */
+    }
+
+    /* Контейнер элементов с правильным отступом */
+    .vs-items {
+      display: flex;
+      flex-direction: row;
+      gap: 18px;
+      padding-left: 0;
+      /* Убираем дополнительный отступ, используем только отступ трека */
+    }
+
+    .vs-loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      background: linear-gradient(180deg, rgba(6, 7, 10, 0.8), rgba(6, 7, 10, 0.4));
+      border-radius: 16px;
+      backdrop-filter: blur(8px);
+    }
+
+    .vs-loading .spinner {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 4px solid rgba(255, 255, 255, 0.08);
+      border-top-color: #74a0ff;
+      box-shadow: 0 8px 24px rgba(116, 160, 255, 0.15);
+      animation: spin 1s linear infinite;
+    }
+
+    .vs-loading .vs-loading-text {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Улучшенные карточки видео */
+    .vs-item {
+      flex: 0 0 auto;
+      width: 300px;
+      min-width: 240px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+      /* Увеличил непрозрачность фона с 0.04/0.01 до 0.12/0.06 */
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      /* Увеличил непрозрачность границы с 0.08 до 0.18 */
+      border-radius: 16px;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 12px 40px rgba(6, 7, 10, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4);
+      /* Увеличил непрозрачность теней */
+      backdrop-filter: blur(12px) saturate(120%);
+      /* Размытие фона чтобы снег не мешал читать текст */
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      scroll-snap-align: start;
+      position: relative;
+    }
+
+    .vs-item::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(116, 160, 255, 0.15), rgba(108, 139, 255, 0.08));
+      /* Увеличил непрозрачность hover эффекта */
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .vs-item:hover::before {
+      opacity: 1;
+    }
+
+    .vs-item:hover {
+      transform: translateY(-12px) scale(1.03);
+      box-shadow: 0 28px 70px rgba(6, 7, 10, 0.8), 0 8px 24px rgba(116, 160, 255, 0.2);
+      /* Увеличил непрозрачность теней при hover */
+      border-color: rgba(116, 160, 255, 0.35);
+      /* Увеличил непрозрачность границы при hover */
+    }
+
+    /* Превью видео */
+    .vs-thumb {
+      width: 100%;
+      height: 170px;
+      background: #0a0a0a;
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px 12px 0 0;
+    }
+
+    .vs-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .vs-item:hover .vs-thumb img {
+      transform: scale(1.05);
+    }
+
+    /* Оверлей с иконкой воспроизведения */
+    .vs-thumb::after {
+      content: '▶';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      color: white;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      backdrop-filter: blur(4px);
+    }
+
+    .vs-item:hover .vs-thumb::after {
+      opacity: 1;
+    }
+
+    /* Информация о видео - исправлено позиционирование */
+    .vs-info {
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex: 1;
+      min-height: 80px;
+    }
+
+    .vs-title {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      margin-bottom: auto;
+      /* Заголовок занимает доступное место сверху */
+    }
+
+    .vs-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      /* Мета всегда внизу */
+    }
+
+    .vs-date {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .vs-views {
+      font-size: 12px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 4px 8px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .vs-empty {
+      padding: 32px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 16px;
+    }
+
+    /* Улучшенные индикаторы */
+    .vs-indicators {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .vs-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      padding: 0;
+      transition: all 0.2s ease;
+    }
+
+    .vs-dot:hover {
+      transform: scale(1.1);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .vs-dot.active {
+      background: linear-gradient(135deg, #74a0ff, #6c8bff);
+      box-shadow: 0 4px 16px rgba(108, 139, 255, 0.3), 0 0 0 3px rgba(116, 160, 255, 0.1);
+      transform: scale(1.2);
+    }
+
+    /* Адаптивность */
+    @media (max-width: 920px) {
+      .vs-item {
+        width: 260px;
+      }
+
+      .vs-thumb {
+        height: 150px;
+      }
+
+      .vs-info {
+        min-height: 75px;
+        padding: 14px 16px;
+      }
+
+      /* Адаптивная высота для планшетов */
+      .video-strip-container {
+        width: min(1000px, 94vw);
+        margin: 16px auto 10px;
+        /* Минимальные отступы для планшетов */
+      }
+
+      /* Адаптивные заголовки для планшетов */
+      .video-section-title {
+        font-size: 26px;
+      }
+
+      .video-section-subtitle {
+        font-size: 15px;
+      }
+
+      .vs-track {
+        padding: 20px 20px 20px 5px;
+        gap: 16px;
+        background: transparent;
+        border: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .vs-item {
+        flex: 0 0 200px;
+        min-width: 180px;
+      }
+
+      .vs-thumb {
+        height: 120px;
+      }
+
+      .vs-info {
+        min-height: 70px;
+        padding: 12px 14px;
+      }
+
+      /* Компактная высота для мобильных */
+      .vs-title {
+        font-size: 15px;
+      }
+
+      /* Меньший шрифт заголовка на мобильных */
+      .vs-date {
+        font-size: 12px;
+      }
+
+      /* Меньший шрифт даты */
+      .vs-views {
+        font-size: 11px;
+        padding: 3px 6px;
+      }
+
+      /* Компактные просмотры */
+      .vs-left {
+        left: -22px;
+        /* Наполовину высовываем левую кнопку (44px / 2 = 22px) */
+      }
+
+      .vs-right {
+        right: -22px;
+        /* Наполовину высовываем правую кнопку (44px / 2 = 22px) */
+      }
+
+      .vs-btn {
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+      }
+
+      .video-strip-container {
+        padding: 8px 0;
+        margin: 12px auto 10px;
+        /* Минимальные отступы для мобильных */
+      }
+
+      /* Невидимый трек для мобильных */
+      .vs-track {
+        padding: 18px 18px 18px 5px;
+        gap: 14px;
+        /* Сохраняем 5px левый отступ */
+        background: transparent;
+        /* Убираем фон */
+        border: none;
+        /* Убираем границы */
+      }
+
+      .video-section-header {
+        padding: 0 16px;
+        margin: 24px auto 12px;
+        /* Минимальные отступы для мобильных */
+      }
+
+      .video-section-title {
+        font-size: 22px;
+      }
+
+      .video-section-subtitle {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- === Лоадер === -->
+  <!-- loader (single element) -->
+  <div id="loader" class="loader">
+    <div class="loader-inner">
+      <div class="ripple-wrapper" aria-hidden="true">
+        <div class="ripple r1"></div>
+        <div class="ripple r2"></div>
+        <div class="ripple r3"></div>
+        <div class="ripple-core" aria-hidden="true"></div>
+      </div>
+      <div class="loader-text">Загрузка…</div>
+    </div>
+  </div>
+
+  <!-- === Аврора === -->
+  <div class="aurora"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
+
+  <!-- Canvas для падающего снега -->
+  <canvas id="snow" class="snow-canvas" aria-hidden="true"></canvas>
+
+
+  <!-- === Контент === -->
+  <div class="container">
+    <main class="card">
+      <section class="header">
+        <div class="avatar"><img id="avatar" alt="Аватар"></div>
+        <div>
+          <h1 class="title" id="title">Загрузка…</h1>
+          <p class="subtitle">Актуальный Telegram канал</p>
+        </div>
+      </section>
+
+      <div class="stats-wrap">
+        <div class="badge" id="subsWrap" style="display:none">
+          <span class="dot"></span>
+          <span id="subs"></span>
+        </div>
+        <div class="metrics" id="metrics" style="display:none">
+          <div class="metric" id="delta24h"></div>
+          <div class="metric" id="delta7d"></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <a class="button blue" id="link" href="#" target="_blank">Перейти в канал</a>
+        <a class="button" id="yt" href="https://www.youtube.com/@Fromoldnukee2" target="_blank"
+          style="background: linear-gradient(135deg, #ff6a6a, #ff3b3b); color: #fff; box-shadow: 0 8px 24px rgba(255, 59, 59, 0.25);">YouTube</a>
+      </div>
+
+      <div class="footer">
+        Автор: <a href="https://t.me/kakakflpw" target="_blank">@kakakflpw</a>
+      </div>
+    </main>
+
+    <!-- === Заголовок секции видео === -->
+    <div class="video-section-header">
+      <h2 class="video-section-title">Последние видео</h2>
+      <p class="video-section-subtitle">Свежий контент с YouTube канала</p>
+    </div>
+
+    <!-- === YouTube slider (видео) === -->
+    <div class="video-strip-container">
+      <div class="video-strip"></div>
+      <button class="vs-btn vs-left" aria-label="Предыдущие видео">◀</button>
+      <div class="vs-track" id="vsTrack" tabindex="0" aria-live="polite">
+        <div class="vs-items" id="vsItems" aria-hidden="false"></div>
+        <div class="vs-loading" id="vsLoading" aria-hidden="true">
+          <div class="spinner" aria-hidden="true"></div>
+          <div class="vs-loading-text">Загружаю видео…</div>
+        </div>
+      </div>
+      <button class="vs-btn vs-right" aria-label="Следующие видео">▶</button>
+    </div>
+  </div>
+
+  </div>
+
+
+  <script>
+    /* === Loader phrases & minimum display time === */
+    const _loaderPhrases = [
+      'Ищу хост…',
+      'Настраиваю соединение…',
+      'Проверяю сеть…',
+      'Подключаюсь к серверу…',
+      'Загружаю модули…',
+      'Подбираю ключи…',
+      'Мдааа....',
+      'Оптимизирую потоки…'
+    ];
+    let _loaderPhraseInterval = null;
+    function startLoaderPhrases() {
+      const el = document.querySelector('.loader-text');
+      if (!el) return;
+      // pick an initial phrase
+      el.textContent = _loaderPhrases[Math.floor(Math.random() * _loaderPhrases.length)];
+      // rotate phrases at irregular intervals for a more natural feel
+      _loaderPhraseInterval = setInterval(() => {
+        el.textContent = _loaderPhrases[Math.floor(Math.random() * _loaderPhrases.length)];
+      }, 800 + Math.floor(Math.random() * 800));
+    }
+    function stopLoaderPhrases() {
+      if (_loaderPhraseInterval) { clearInterval(_loaderPhraseInterval); _loaderPhraseInterval = null; }
+    }
+
+    /* === API загрузка === */
+    async function loadData() {
+      const loader = document.getElementById("loader");
+      const loaderStart = performance.now();
+      startLoaderPhrases();
+      try {
+        const res = await fetch("/api/channel");
+        const data = await res.json();
+
+        if (data.title) document.getElementById("title").textContent = data.title;
+        if (data.photo) document.getElementById("avatar").src = data.photo;
+        if (data.username) document.getElementById("link").href = "https://t.me/" + data.username;
+        if (typeof data.subscribers === 'number') {
+          const subs = new Intl.NumberFormat('ru-RU').format(data.subscribers);
+          document.getElementById('subs').textContent = subs + ' подписчиков';
+          document.getElementById('subsWrap').style.display = 'inline-flex';
+        }
+        if (typeof data.delta24h === 'number' || typeof data.delta7d === 'number') {
+          const m = document.getElementById('metrics');
+          const d24 = document.getElementById('delta24h');
+          const d7 = document.getElementById('delta7d');
+          const fmt = (v) => (v > 0 ? '+' : '') + new Intl.NumberFormat('ru-RU').format(v);
+          if (typeof data.delta24h === 'number') d24.textContent = '24ч: ' + fmt(data.delta24h);
+          if (typeof data.delta7d === 'number') d7.textContent = '7д: ' + fmt(data.delta7d);
+          m.style.display = 'flex';
+        }
+      } catch (e) {
+        console.error("Ошибка загрузки канала", e);
+      } finally {
+        // Ensure loader is visible for at least 1.5s for UX consistency
+        const minMs = 1500;
+        const elapsed = performance.now() - loaderStart;
+        const remaining = Math.max(0, minMs - elapsed);
+        setTimeout(() => {
+          stopLoaderPhrases();
+          loader.classList.add("hidden");
+        }, remaining);
+      }
+    }
+
+    /* === Анимированный title === */
+    const titles = ["NeverLose", "UMBRELLA", "Skeet", "fromoldnuke7", "Kakakflpw", "MORIARTY", "MELLSTROY", "САНЯ ГЕЙ"];
+    const symbols = "0123456789№%?*$&#@!";
+    let currentIndex = 0;
+
+    function animateTitle(text) {
+      let output = Array(text.length).fill("");
+      let step = 0;
+
+      return new Promise(resolve => {
+        const interval = setInterval(() => {
+          let done = true;
+          for (let i = 0; i < text.length; i++) {
+            if (step < i * 2 + 5) {
+              output[i] = symbols[Math.floor(Math.random() * symbols.length)];
+              done = false;
+            } else {
+              output[i] = text[i];
+            }
+          }
+          document.title = output.join("");
+          if (done) {
+            clearInterval(interval);
+            setTimeout(resolve, 1200); // пауза перед следующим словом
+          }
+          step++;
+        }, 80);
+      });
+    }
+
+    async function loopTitles() {
+      while (true) {
+        const text = titles[currentIndex % titles.length];
+        await animateTitle(text);
+        currentIndex++;
+      }
+    }
+
+    loadData();
+    loopTitles();
+
+    /* === Live подписчики (SSE) === */
+    try {
+      const es = new EventSource('/api/stream');
+      const subsEl = document.getElementById('subs');
+      const wrapEl = document.getElementById('subsWrap');
+      let last = null;
+
+      es.addEventListener('subscribers', (e) => {
+        const data = JSON.parse(e.data);
+        if (typeof data.subscribers === 'number') {
+          wrapEl.style.display = 'inline-flex';
+          const formatted = new Intl.NumberFormat('ru-RU').format(data.subscribers);
+          if (last !== data.subscribers) {
+            subsEl.textContent = formatted + ' подписчиков';
+            wrapEl.classList.remove('bump');
+            void wrapEl.offsetWidth; // перезапуск анимации
+            wrapEl.classList.add('bump');
+            last = data.subscribers;
+          }
+        }
+        if (typeof data.delta24h === 'number' || typeof data.delta7d === 'number') {
+          const m = document.getElementById('metrics');
+          const d24 = document.getElementById('delta24h');
+          const d7 = document.getElementById('delta7d');
+          const fmt = (v) => (v > 0 ? '+' : '') + new Intl.NumberFormat('ru-RU').format(v);
+          if (typeof data.delta24h === 'number') d24.textContent = '24ч: ' + fmt(data.delta24h);
+          if (typeof data.delta7d === 'number') d7.textContent = '7д: ' + fmt(data.delta7d);
+          m.style.display = 'flex';
+        }
+      });
+
+      es.addEventListener('error', (e) => {
+        // тихо игнорируем, можно добавить retry/backoff при желании
+      });
+    } catch (_) { }
+  </script>
+
+  <script>
+    // === Falling snow (lightweight canvas) ===
+    (function () {
+      const canvas = document.getElementById('snow');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let w = 0, h = 0, ratio = 1, flakes = [];
+      const config = { density: 0.0007, maxSize: 3.2, speed: 0.6, wind: 0.2 };
+
+      function resize() {
+        ratio = window.devicePixelRatio || 1;
+        w = Math.max(320, window.innerWidth);
+        h = Math.max(200, window.innerHeight);
+        canvas.width = Math.floor(w * ratio);
+        canvas.height = Math.floor(h * ratio);
+        canvas.style.width = w + 'px';
+        canvas.style.height = h + 'px';
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        const targetCount = Math.ceil(w * h * config.density);
+        while (flakes.length < targetCount) flakes.push(makeFlake(true));
+        while (flakes.length > targetCount) flakes.pop();
+      }
+
+      function makeFlake(init) {
+        const size = Math.random() * config.maxSize + 0.8;
+        return {
+          x: Math.random() * w,
+          y: init ? Math.random() * h : -10 - Math.random() * 50,
+          vx: (Math.random() - 0.5) * config.wind,
+          vy: size * (0.4 + Math.random() * config.speed),
+          r: size,
+          a: 0.8 + Math.random() * 0.2
+        };
+      }
+
+      let last = performance.now();
+      function step(now) {
+        const dt = Math.min(40, now - last) / 1000;
+        last = now;
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = 'rgba(255,255,255,0.85)';
+        for (let i = 0; i < flakes.length; i++) {
+          const f = flakes[i];
+          f.x += f.vx * dt * 60;
+          f.y += f.vy * dt * 60;
+          f.vx += (Math.sin((now + i * 997) / 5000) * 0.02) * dt * 60;
+          if (f.y - f.r > h || f.x < -50 || f.x > w + 50) {
+            flakes[i] = makeFlake(false);
+            continue;
+          }
+          ctx.globalAlpha = f.a;
+          ctx.beginPath();
+          ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(step);
+      }
+
+      // Pause animation when tab is hidden
+      let running = true;
+      function visibility() {
+        if (document.hidden) running = false; else { running = true; last = performance.now(); requestAnimationFrame(step); }
+      }
+
+      window.addEventListener('resize', resize);
+      document.addEventListener('visibilitychange', visibility);
+      resize();
+      requestAnimationFrame(step);
+    })();
+  </script>
+  <script>
+    // === YouTube slider client (refined) ===
+    (function () {
+      const track = document.getElementById('vsTrack');
+      const itemsEl = document.getElementById('vsItems');
+      const loadingEl = document.getElementById('vsLoading');
+      const leftBtn = document.querySelector('.vs-left');
+      const rightBtn = document.querySelector('.vs-right');
+      const container = document.querySelector('.video-strip-container');
+      const CHANNEL_HANDLE = 'Fromoldnukee2';
+      const MAX = 8;
+
+      if (!track || !container) return;
+
+      function showError(message) {
+        track.innerHTML = `
+      <div class="vs-empty">
+        <div style="font-size: 18px; margin-bottom: 8px;">😔</div>
+        <div style="font-weight: 600; margin-bottom: 4px;">Не удалось загрузить видео</div>
+        <div style="font-size: 14px; opacity: 0.7;">${message}</div>
+      </div>
+    `;
+      }
+
+      function formatDate(dateStr) {
+        try {
+          // Если это уже английский текст типа "3 weeks ago", переводим
+          if (typeof dateStr === 'string' && dateStr.includes('ago')) {
+            return translateEnglishDate(dateStr);
+          }
+          
+          const d = new Date(dateStr);
+          if (isNaN(d)) return translateEnglishDate(String(dateStr));
+          
+          const now = new Date();
+          const diffMs = now - d;
+          const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+          const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+
+          // Более точное форматирование на русском
+          if (diffHours < 1) return 'Только что';
+          if (diffHours < 24) return `${diffHours} ч. назад`;
+          if (diffDays === 1) return 'Вчера';
+          if (diffDays === 2) return 'Позавчера';
+          if (diffDays < 7) return `${diffDays} дн. назад`;
+
+          const weeks = Math.floor(diffDays / 7);
+          if (weeks === 1) return '1 неделю назад';
+          if (weeks < 4) return `${weeks} нед. назад`;
+
+          const months = Math.floor(diffDays / 30);
+          if (months === 1) return '1 месяц назад';
+          if (months < 12) return `${months} мес. назад`;
+
+          const years = Math.floor(diffDays / 365);
+          if (years === 1) return '1 год назад';
+          return `${years} лет назад`;
+        } catch (e) {
+          return translateEnglishDate(String(dateStr));
+        }
+      }
+
+      function translateEnglishDate(englishDate) {
+        if (!englishDate || typeof englishDate !== 'string') return '';
+        
+        const str = englishDate.toLowerCase();
+        
+        // Переводим английские даты на русский
+        if (str.includes('second') && str.includes('ago')) {
+          return 'Только что';
+        }
+        if (str.includes('minute') && str.includes('ago')) {
+          const match = str.match(/(\d+)\s*minute/);
+          const num = match ? match[1] : '1';
+          return `${num} мин. назад`;
+        }
+        if (str.includes('hour') && str.includes('ago')) {
+          const match = str.match(/(\d+)\s*hour/);
+          const num = match ? match[1] : '1';
+          return `${num} ч. назад`;
+        }
+        if (str.includes('day') && str.includes('ago')) {
+          const match = str.match(/(\d+)\s*day/);
+          const num = match ? match[1] : '1';
+          if (num === '1') return 'Вчера';
+          if (num === '2') return 'Позавчера';
+          return `${num} дн. назад`;
+        }
+        if (str.includes('week') && str.includes('ago')) {
+          const match = str.match(/(\d+)\s*week/);
+          const num = match ? match[1] : '1';
+          if (num === '1') return '1 неделю назад';
+          return `${num} нед. назад`;
+        }
+        if (str.includes('month') && str.includes('ago')) {
+          const match = str.match(/(\d+)\s*month/);
+          const num = match ? match[1] : '1';
+          if (num === '1') return '1 месяц назад';
+          return `${num} мес. назад`;
+        }
+        if (str.includes('year') && str.includes('ago')) {
+          const match = str.match(/(\d+)\s*year/);
+          const num = match ? match[1] : '1';
+          if (num === '1') return '1 год назад';
+          return `${num} лет назад`;
+        }
+        
+        // Если не удалось перевести, возвращаем как есть
+        return englishDate;
+      }
+
+      function formatViews(count) {
+        const num = parseInt(count) || 0;
+        if (num === 0) return '0 просм.';
+        if (num < 1000) return `${num} просм.`;
+        if (num < 1000000) return `${Math.floor(num / 1000)}К просм.`;
+        if (num < 1000000000) return `${Math.floor(num / 1000000)}М просм.`;
+        return `${Math.floor(num / 1000000000)}Б просм.`;
+      }
+
+      function createCard(v) {
+        const a = document.createElement('a');
+        a.className = 'vs-item';
+        a.href = v.url || '#';
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.tabIndex = 0;
+
+        // Превью
+        const thumb = document.createElement('div');
+        thumb.className = 'vs-thumb';
+        const img = document.createElement('img');
+        img.loading = 'lazy';
+        img.alt = v.title || 'Видео';
+        if (v.thumbnail) img.src = v.thumbnail;
+        thumb.appendChild(img);
+
+        // Информация
+        const info = document.createElement('div');
+        info.className = 'vs-info';
+
+        const title = document.createElement('div');
+        title.className = 'vs-title';
+        title.textContent = v.title || 'Без названия';
+
+        const meta = document.createElement('div');
+        meta.className = 'vs-meta';
+
+        const date = document.createElement('div');
+        date.className = 'vs-date';
+        date.textContent = v.publishedAt ? formatDate(v.publishedAt) : '';
+
+        const views = document.createElement('div');
+        views.className = 'vs-views';
+        const viewsText = formatViews(v.viewCount);
+        views.textContent = viewsText || '0 просм.';
+
+        meta.appendChild(date);
+        meta.appendChild(views); // Всегда показываем просмотры
+
+        info.appendChild(title);
+        info.appendChild(meta);
+
+        a.appendChild(thumb);
+        a.appendChild(info);
+        return a;
+      }
+
+      async function loadVideos() {
+        itemsEl.innerHTML = '';
+        loadingEl.setAttribute('aria-hidden', 'false'); loadingEl.style.display = 'flex';
+        try {
+          const res = await fetch(`/api/videos?handle=${encodeURIComponent(CHANNEL_HANDLE)}&maxResults=${MAX}`);
+          if (!res.ok) {
+            const json = await res.json().catch(() => null);
+            const msg = (json && json.error && (json.error.message || json.error)) || res.statusText || 'Не удалось получить видео';
+            showError(msg);
+            return [];
+          }
+          const data = await res.json();
+          const items = data.items || [];
+
+          // Отладка: проверяем что приходит с сервера (можно убрать в продакшене)
+          if (items.length > 0) {
+            console.log('Загружено видео:', items.length, 'Первое:', items[0].title, 'Просмотры:', items[0].viewCount);
+          }
+
+          if (!items.length) {
+            itemsEl.innerHTML = `
+          <div class="vs-empty">
+            <div style="font-size: 18px; margin-bottom: 8px;">📹</div>
+            <div style="font-weight: 600; margin-bottom: 4px;">Видео пока нет</div>
+            <div style="font-size: 14px; opacity: 0.7;">Скоро здесь появится новый контент</div>
+          </div>
+        `;
+            return items;
+          }
+          items.forEach(it => itemsEl.appendChild(createCard(it)));
+          return items;
+        } catch (e) { console.error('Видео ошибка', e); showError(String(e)); return []; }
+        finally { loadingEl.setAttribute('aria-hidden', 'true'); loadingEl.style.display = 'none'; }
+      }
+
+      // controls - исправлено для скролла по одному элементу
+      function getItemWidth() {
+        const first = track.querySelector('.vs-item');
+        if (!first) return 300; // fallback
+        return first.offsetWidth;
+      }
+
+      function getGap() {
+        const style = getComputedStyle(track);
+        return parseInt(style.gap) || 20;
+      }
+
+      function getTrackPadding() {
+        const style = getComputedStyle(track);
+        return parseInt(style.paddingLeft) || 5; // Обновлено для нового отступа
+      }
+
+      function scrollToIndex(i) {
+        isScrolling = true;
+        const itemWidth = getItemWidth();
+        const gap = getGap();
+        const trackPadding = getTrackPadding(); // минимальный padding слева 5px
+        const scrollLeft = (i * (itemWidth + gap)); // Убираем добавление padding к scroll
+
+        track.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+
+        // Сразу обновляем активный индекс
+        setActive(i);
+
+        // Сбрасываем флаг после завершения анимации
+        setTimeout(() => {
+          isScrolling = false;
+        }, 500);
+      }
+
+      leftBtn.addEventListener('click', () => {
+        const idx = Math.max(0, activeIndex - 1);
+        scrollToIndex(idx);
+        pauseAutoplay();
+      });
+
+      rightBtn.addEventListener('click', () => {
+        const idx = Math.min(slideCount - 1, activeIndex + 1);
+        scrollToIndex(idx);
+        pauseAutoplay();
+      });
+
+      track.addEventListener('keydown', (e) => { if (e.key === 'ArrowLeft') { e.preventDefault(); leftBtn.click(); } if (e.key === 'ArrowRight') { e.preventDefault(); rightBtn.click(); } });
+
+      // indicators
+      const indicators = document.createElement('div'); indicators.className = 'vs-indicators'; container.appendChild(indicators);
+      let dots = [];
+
+      function buildIndicators(n) {
+        indicators.innerHTML = '';
+        dots = [];
+        for (let i = 0; i < n; i++) {
+          const b = document.createElement('button');
+          b.className = 'vs-dot';
+          b.setAttribute('aria-label', `Перейти к видео ${i + 1} из ${n}`);
+          b.addEventListener('click', () => { scrollToIndex(i); pauseAutoplay(); });
+          indicators.appendChild(b);
+          dots.push(b);
+        }
+      }
+
+      // track active slide - упрощенная и стабильная логика
+      let activeIndex = 0, slideCount = 0;
+      let isScrolling = false;
+
+      // Простое определение активного слайда через scroll
+      let scrollTimeout = null;
+      track.addEventListener('scroll', () => {
+        if (isScrolling) return; // Игнорируем события во время программного скролла
+
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+          const scrollLeft = track.scrollLeft;
+          const itemWidth = getItemWidth();
+          const gap = getGap();
+
+          // Упрощенный расчет без учета padding (так как он минимальный)
+          const newIndex = Math.round(scrollLeft / (itemWidth + gap));
+          const clampedIndex = Math.max(0, Math.min(slideCount - 1, newIndex));
+
+          if (clampedIndex !== activeIndex) {
+            setActive(clampedIndex);
+          }
+        }, 150);
+      });
+
+      function setActive(i) { activeIndex = i; dots.forEach((d, j) => d.classList.toggle('active', i === j)); dots.forEach((d, j) => d.setAttribute('aria-current', i === j ? 'true' : 'false')); }
+
+      // autoplay - улучшенный с быстрым сбросом
+      let autoplayTimer = null;
+      const AUTOPLAY_MS = 4000; // 4 секунды
+      let autoplayPaused = false;
+      let userInteracted = false;
+
+      function startAutoplay() {
+        stopAutoplay();
+        if (slideCount <= 1 || autoplayPaused) return;
+        autoplayTimer = setInterval(() => {
+          if (autoplayPaused || userInteracted) return;
+          const next = (activeIndex + 1) % slideCount;
+          scrollToIndex(next);
+        }, AUTOPLAY_MS);
+      }
+
+      function stopAutoplay() {
+        if (autoplayTimer) {
+          clearInterval(autoplayTimer);
+          autoplayTimer = null;
+        }
+      }
+
+      function pauseAutoplay() {
+        userInteracted = true;
+        autoplayPaused = true;
+        stopAutoplay();
+        // Возобновляем автоплей через 8 секунд после взаимодействия
+        setTimeout(() => {
+          userInteracted = false;
+          autoplayPaused = false;
+          startAutoplay();
+        }, 8000);
+      }
+
+      // pause on interaction - расширенные события
+      track.addEventListener('pointerdown', () => pauseAutoplay());
+      track.addEventListener('mouseenter', () => pauseAutoplay());
+      track.addEventListener('focusin', () => pauseAutoplay());
+      track.addEventListener('touchstart', () => pauseAutoplay());
+      track.addEventListener('wheel', () => pauseAutoplay());
+
+      // Также паузим при клике на кнопки и индикаторы
+      leftBtn.addEventListener('mouseenter', () => pauseAutoplay());
+      rightBtn.addEventListener('mouseenter', () => pauseAutoplay());
+
+      // resize handling (recompute step)
+      let resizeTimer = null; window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { /* nothing to do - snap handles layout, but ensure visuals updated */ }, 120); });
+
+      // load and wire up
+      loadVideos().then(items => {
+        slideCount = items.length || track.querySelectorAll('.vs-item').length;
+        console.log('Слайдер инициализирован:', slideCount, 'видео');
+        buildIndicators(slideCount);
+        // set initial active
+        setTimeout(() => setActive(0), 200);
+        startAutoplay();
+      });
+
+    })();
+  </script>
+</body>
+
+</html>
