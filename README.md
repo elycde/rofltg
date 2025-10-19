@@ -1,6 +1,4 @@
-# 🚀 RofLTG - Telegram Channel Website
-
-Красивый веб-сайт для Telegram канала с интеграцией YouTube видео и live статистикой подписчиков.
+# 🚀 RoflTG - Telegram Channel Website
 
 ## ✨ Особенности
 
@@ -93,14 +91,6 @@ sudo apt install nodejs npm nginx
 
 ### Cloudflare + Workers
 Используй Cloudflare Workers для проксирования на нестандартные порты.
-
-## 🤝 Вклад в проект
-
-1. Форкни репозиторий
-2. Создай ветку для фичи: `git checkout -b feature/amazing-feature`
-3. Закоммить изменения: `git commit -m 'Add amazing feature'`
-4. Запуш в ветку: `git push origin feature/amazing-feature`
-5. Открой Pull Request
 
 ## 📄 Лицензия
 
