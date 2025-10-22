@@ -170,54 +170,178 @@ rofltg-react/
 
 ## 🚀 Деплой
 
-### VPS (Linux)
+### Быстрый деплой (любой хостинг)
+
+**1. Клонируй репозиторий:**
 ```bash
-# Установи зависимости
-sudo apt update
-sudo apt install nodejs npm nginx
+git clone https://github.com/elycde/rofltg.git
+cd rofltg
+```
 
-# Клонируй проект
-git clone <repo>
-cd rofltg-react
-
-# Установи зависимости и собери
+**2. Установи зависимости:**
+```bash
 npm install
-npm run build
+```
 
-# Настрой .env
+**3. Настрой переменные окружения:**
+```bash
+# Linux/Mac
 cp .env.example .env
 nano .env
 
-# Запусти с PM2
-npm install -g pm2
-pm2 start npm --name "rofltg" -- start
-pm2 save
-pm2 startup
-
-# Настрой Nginx прокси на порт 3000
-# Получи SSL сертификат через Certbot
-```
-
-### Windows Server
-```bash
-# Установи Node.js с nodejs.org
-# Клонируй и собери проект
-git clone <repo>
-cd rofltg-react
-npm install
-npm run build
-
-# Настрой .env
+# Windows
 copy .env.example .env
 notepad .env
-
-# Запусти как Windows Service с помощью node-windows
-npm install -g node-windows
-# Создай service.js и установи сервис
 ```
 
-### Cloudflare + Workers
-Используй Cloudflare Workers для проксирования на нестандартные порты.
+**4. Запусти:**
+```bash
+npm start
+```
+
+Готово! Сайт доступен на `http://localhost:3000`
+
+---
+
+### Продакшн с PM2 (рекомендуется)
+
+**Установка PM2:**
+```bash
+npm install -g pm2
+```
+
+**Запуск:**
+```bash
+# Собери проект
+npm run build
+
+# Запусти с PM2
+pm2 start npm --name "rofltg" -- run server
+
+# Сохрани конфигурацию
+pm2 save
+
+# Автозапуск при перезагрузке
+pm2 startup
+# Выполни команду, которую покажет PM2
+```
+
+**Управление:**
+```bash
+pm2 status          # Статус
+pm2 logs rofltg     # Логи
+pm2 restart rofltg  # Перезапуск
+pm2 stop rofltg     # Остановка
+pm2 delete rofltg   # Удалить
+```
+
+---
+
+### VPS с Nginx (Linux)
+
+**1. Установи зависимости:**
+```bash
+sudo apt update
+sudo apt install nodejs npm nginx certbot python3-certbot-nginx
+```
+
+**2. Настрой проект (см. выше)**
+
+**3. Настрой Nginx:**
+```bash
+sudo nano /etc/nginx/sites-available/rofltg
+```
+
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+**4. Активируй конфиг:**
+```bash
+sudo ln -s /etc/nginx/sites-available/rofltg /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
+```
+
+**5. Получи SSL сертификат:**
+```bash
+sudo certbot --nginx -d your-domain.com
+```
+
+---
+
+### Windows Server
+
+**1. Установи Node.js:**
+- Скачай с [nodejs.org](https://nodejs.org)
+
+**2. Клонируй и настрой проект:**
+```bash
+git clone https://github.com/elycde/rofltg.git
+cd rofltg
+npm install
+copy .env.example .env
+notepad .env
+npm run build
+```
+
+**3. Запусти как Windows Service:**
+```bash
+npm install -g node-windows
+```
+
+Создай `service.js`:
+```javascript
+const Service = require('node-windows').Service;
+
+const svc = new Service({
+  name: 'RoflTG',
+  description: 'RoflTG Telegram Channel Website',
+  script: 'C:\\path\\to\\rofltg\\server\\server.js'
+});
+
+svc.on('install', () => svc.start());
+svc.install();
+```
+
+Запусти:
+```bash
+node service.js
+```
+
+---
+
+### Docker (опционально)
+
+Создай `Dockerfile`:
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+EXPOSE 3000
+CMD ["npm", "run", "server"]
+```
+
+Запусти:
+```bash
+docker build -t rofltg .
+docker run -d -p 3000:3000 --env-file .env --name rofltg rofltg
+```
 
 ## 🔒 Безопасность
 
