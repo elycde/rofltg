@@ -1,0 +1,446 @@
+/* === Цвета и фон === */
+:root {
+  --bg-0: #06070a;
+  --bg-1: #0b0f14;
+  --text: #dfe9f8;
+  --muted: #8aa0b2;
+  --glass: rgba(255, 255, 255, 0.04);
+  --glass-border: rgba(255, 255, 255, 0.12);
+}
+
+/* === Глобальный класс размытия === */
+.glass-blur {
+  background: rgba(255, 255, 255, 0.04) !important;
+  backdrop-filter: blur(14px) saturate(120%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(120%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  isolation: isolate !important;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  color: var(--text);
+  background: radial-gradient(1200px 600px at 10% 10%, rgba(10, 14, 20, 0.6), transparent 20%), var(--bg-0);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* === Кастомный скроллбар === */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(116, 160, 255, 0.4), rgba(108, 139, 255, 0.3));
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(116, 160, 255, 0.6), rgba(108, 139, 255, 0.5));
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(180deg, rgba(116, 160, 255, 0.8), rgba(108, 139, 255, 0.7));
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(116, 160, 255, 0.4) rgba(255, 255, 255, 0.02);
+}
+
+#root {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* === Аврора фон === */
+.aurora {
+  position: fixed;
+  inset: -20% -10% -10% -10%;
+  z-index: -1;
+  filter: blur(60px) saturate(120%);
+  pointer-events: none;
+}
+
+.aurora span {
+  position: absolute;
+  width: 60vw;
+  height: 60vw;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(91, 140, 255, .35), transparent 60%),
+    radial-gradient(circle at 70% 70%, rgba(0, 212, 255, .28), transparent 55%),
+    radial-gradient(circle at 50% 50%, rgba(123, 91, 255, .32), transparent 50%);
+  mix-blend-mode: screen;
+  opacity: .36;
+  animation: drift var(--t, 20s) ease-in-out infinite alternate;
+}
+
+.aurora .a1 {
+  top: 10%;
+  left: -10%;
+  --t: 24s;
+}
+
+.aurora .a2 {
+  top: 50%;
+  right: -15%;
+  --t: 20s;
+}
+
+.aurora .a3 {
+  bottom: -10%;
+  left: 30%;
+  --t: 26s;
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(10%, -8%, 0) scale(1.1);
+  }
+}
+
+/* === Контейнер === */
+.container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* === Карточка === */
+.card {
+  width: min(500px, 88vw);
+  background: var(--glass);
+  backdrop-filter: blur(14px) saturate(120%);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.snow-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+/* === Хедер === */
+.header {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 18px;
+  align-items: center;
+}
+
+.avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  background: linear-gradient(145deg, rgba(123, 91, 255, 0.22), rgba(0, 212, 255, 0.14));
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  animation: float 6s ease-in-out infinite;
+  position: relative;
+}
+
+.avatar img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 2;
+}
+
+.avatar-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text);
+  background: linear-gradient(145deg, rgba(123, 91, 255, 0.4), rgba(0, 212, 255, 0.3));
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.title {
+  margin: 0 0 6px 0;
+  font-size: 28px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.08;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+/* === Статистика === */
+.stats-wrap {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.metrics {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.metric {
+  font-size: 13px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  padding: 6px 10px;
+  border-radius: 10px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-border);
+}
+
+.badge .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #00d4ff;
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.8);
+}
+
+.badge.bump {
+  animation: bump 400ms ease;
+}
+
+@keyframes bump {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.06);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* === Кнопки === */
+.actions {
+  margin-top: 18px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.button {
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-weight: 600;
+  color: #6ad5ff;
+  text-decoration: none;
+  background: linear-gradient(135deg, #74a0ff, #6c8bff 40%, #00d4ff);
+  box-shadow: 0 8px 24px rgba(0, 212, 255, 0.24), 0 4px 12px rgba(107, 139, 255, 0.25);
+  transition: 0.2s;
+  border: none;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+}
+
+.button.secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  border: 1px solid var(--glass-border);
+  box-shadow: none;
+}
+
+.button.blue {
+  background: rgba(20, 161, 255, 0.651);
+  color: var(--text);
+  border: 1px solid rgba(116, 160, 255, 0.35);
+  box-shadow: 0 6px 18px rgba(116, 160, 255, 0.12);
+}
+
+.button.youtube {
+  background: linear-gradient(135deg, #ff6a6a, #ff3b3b);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(255, 59, 59, 0.25);
+}
+
+/* === Футер === */
+.footer {
+  margin-top: 20px;
+  color: var(--muted);
+  font-size: 11px;
+  text-align: left;
+}
+
+.footer a {
+  color: #2AABEE;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.footer a:visited {
+  color: #2AABEE;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* === Подвал страницы === */
+.page-footer {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  padding: 20px;
+  margin-top: 40px;
+  text-align: center;
+}
+
+.page-footer-content {
+  display: inline-block;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.page-footer-content a {
+  color: #2AABEE;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.page-footer-content a:visited {
+  color: #2AABEE;
+}
+
+.page-footer-content a:hover {
+  color: #4fc3f7;
+  text-decoration: underline;
+}
+
+/* === Мобильная адаптация === */
+@media (max-width: 480px) {
+  .card {
+    padding: 18px;
+    width: 94vw;
+  }
+
+  .header {
+    grid-template-columns: 72px 1fr;
+    gap: 12px;
+  }
+
+  .avatar {
+    width: 72px;
+    height: 72px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
+
+  .actions {
+    gap: 8px;
+  }
+
+  .metrics {
+    gap: 8px;
+  }
+
+  .badge {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  .avatar-placeholder {
+    font-size: 24px;
+  }
+}

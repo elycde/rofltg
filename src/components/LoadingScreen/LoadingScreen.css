@@ -1,0 +1,129 @@
+/* === Лоадер === */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(180deg, rgba(6, 7, 10, 0.98), rgba(11, 15, 20, 0.99));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: opacity 360ms ease, visibility 360ms ease;
+}
+
+.loader.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loader-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Ripple-style concentric loader */
+.ripple-wrapper {
+  width: 104px;
+  height: 104px;
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+}
+
+.ripple {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #9ec9ff, #6c8bff);
+  box-shadow: 0 10px 30px rgba(76, 106, 255, 0.12);
+  transform: scale(0.2);
+  opacity: 0;
+}
+
+.ripple.r1 {
+  animation: ripple 1.8s cubic-bezier(.2, .8, .2, 1) infinite;
+}
+
+.ripple.r2 {
+  animation: ripple 1.8s cubic-bezier(.2, .8, .2, 1) infinite;
+  animation-delay: 0.32s;
+}
+
+.ripple.r3 {
+  animation: ripple 1.8s cubic-bezier(.2, .8, .2, 1) infinite;
+  animation-delay: 0.64s;
+}
+
+.ripple-core {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #cde3ff, #7b92ff);
+  box-shadow: 0 6px 18px rgba(108, 139, 255, 0.28);
+}
+
+.loader-text {
+  color: var(--muted);
+  font-size: 14px;
+  letter-spacing: .2px;
+  position: relative;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.loader-text::after {
+  content: '';
+  position: absolute;
+  left: -40%;
+  top: 0;
+  height: 100%;
+  width: 60%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+  transform: skewX(-12deg);
+  animation: shimmer 1.6s linear infinite;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0.22);
+    opacity: 0.95;
+  }
+  40% {
+    transform: scale(1.12);
+    opacity: 0.28;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer {
+  to {
+    left: 140%;
+  }
+}
+
+/* Respect users' reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .ripple {
+    animation: none !important;
+    opacity: 1;
+    transform: scale(1);
+  }
+  
+  .loader-text::after {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .ripple-wrapper {
+    width: 72px;
+    height: 72px;
+  }
+}
