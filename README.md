@@ -2,7 +2,7 @@
 
 Современная визитка Telegram канала с YouTube интеграцией и продвинутыми фильтрами.
 
-## ✨ Особенности v2
+## ✨ Особенности
 
 - 🎨 **Современный дизайн** с glass-эффектами и анимациями
 - ⚛️ **React 18** с хуками и современной архитектурой
@@ -29,16 +29,12 @@ npm install
 ```
 
 ### 2. Настройка переменных окружения
-Скопируй `.env.example` в `.env` и заполни своими данными:
 ```bash
-# Linux/Mac
 cp .env.example .env
-
-# Windows
-copy .env.example .env
+nano .env
 ```
 
-Отредактируй `.env`:
+Заполни `.env`:
 ```env
 BOT_TOKEN=твой_telegram_bot_token
 YT_API_KEY=твой_youtube_api_ключ
@@ -47,22 +43,6 @@ PORT=3000
 
 ### 3. Разработка
 
-#### Windows
-Автоматический запуск обоих серверов:
-```bash
-dev.bat
-```
-
-Или вручную в двух терминалах:
-```bash
-# Терминал 1 - Backend
-npm run server:watch
-
-# Терминал 2 - Frontend
-npm run dev
-```
-
-#### Linux/Mac
 Открой два терминала:
 
 **Терминал 1 - Backend:**
@@ -79,23 +59,15 @@ npm run dev
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:3000
 
-**Важно:** Серверы автоматически перезагружаются при изменении файлов! 🎉
-- Frontend (Vite) - hot reload для `.jsx`, `.css`
-- Backend (Node --watch) - автоперезапуск для `.js`
+Серверы автоматически перезагружаются при изменении файлов.
 
 ### 4. Продакшн
 
-#### Сборка и запуск
 ```bash
 npm start
 ```
 
 Сайт будет доступен на `http://localhost:3000`
-
-#### Только сборка
-```bash
-npm run build
-```
 
 ## 📋 Получение API ключей
 
@@ -120,18 +92,18 @@ npm run build
 ## 🎨 Кастомизация
 
 ### Изменение канала
-В `server/server.js` измени:
+В `server/server.js`:
 ```javascript
 const CHAT_ID = "@твой_канал";
 ```
 
-В `src/components/VideoSlider/VideoSlider.jsx` измени:
+В `src/components/VideoSlider/VideoSlider.jsx`:
 ```javascript
 const CHANNEL_HANDLE = 'ТвойYouTubeКанал';
 ```
 
 ### Стили и цвета
-Основные переменные в `src/styles/index.css`:
+В `src/styles/index.css`:
 ```css
 :root {
   --bg-0: #06070a;
@@ -144,7 +116,7 @@ const CHANNEL_HANDLE = 'ТвойYouTubeКанал';
 ## 📦 Структура проекта
 
 ```
-rofltg-react/
+rofltg/
 ├── src/
 │   ├── components/
 │   │   ├── Header/           # Хедер с информацией о канале
@@ -168,62 +140,43 @@ rofltg-react/
 └── index.html
 ```
 
-## 🚀 Деплой
+## 🚀 Деплой на VPS
 
-### Быстрый деплой (любой хостинг)
+### Быстрая установка
 
-**1. Клонируй репозиторий:**
 ```bash
+# Клонируй репозиторий
 git clone https://github.com/elycde/rofltg.git
 cd rofltg
-```
 
-**2. Установи зависимости:**
-```bash
+# Установи зависимости
 npm install
-```
 
-**3. Настрой переменные окружения:**
-```bash
-# Linux/Mac
+# Настрой переменные окружения
 cp .env.example .env
 nano .env
 
-# Windows
-copy .env.example .env
-notepad .env
-```
-
-**4. Запусти:**
-```bash
+# Запусти
 npm start
 ```
 
-Готово! Сайт доступен на `http://localhost:3000`
+Сайт доступен на `http://localhost:3000`
 
 ---
 
 ### Продакшн с PM2 (рекомендуется)
 
-**Установка PM2:**
+**1. Установи PM2:**
 ```bash
 npm install -g pm2
 ```
 
-**Запуск:**
+**2. Собери и запусти:**
 ```bash
-# Собери проект
 npm run build
-
-# Запусти с PM2
 pm2 start npm --name "rofltg" -- run server
-
-# Сохрани конфигурацию
 pm2 save
-
-# Автозапуск при перезагрузке
 pm2 startup
-# Выполни команду, которую покажет PM2
 ```
 
 **Управление:**
@@ -237,17 +190,15 @@ pm2 delete rofltg   # Удалить
 
 ---
 
-### VPS с Nginx (Linux)
+### Nginx + SSL
 
 **1. Установи зависимости:**
 ```bash
 sudo apt update
-sudo apt install nodejs npm nginx certbot python3-certbot-nginx
+sudo apt install nginx certbot python3-certbot-nginx
 ```
 
-**2. Настрой проект (см. выше)**
-
-**3. Настрой Nginx:**
+**2. Настрой Nginx:**
 ```bash
 sudo nano /etc/nginx/sites-available/rofltg
 ```
@@ -268,64 +219,23 @@ server {
 }
 ```
 
-**4. Активируй конфиг:**
+**3. Активируй конфиг:**
 ```bash
 sudo ln -s /etc/nginx/sites-available/rofltg /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl restart nginx
 ```
 
-**5. Получи SSL сертификат:**
+**4. Получи SSL сертификат:**
 ```bash
 sudo certbot --nginx -d your-domain.com
 ```
 
 ---
 
-### Windows Server
+### Docker
 
-**1. Установи Node.js:**
-- Скачай с [nodejs.org](https://nodejs.org)
-
-**2. Клонируй и настрой проект:**
-```bash
-git clone https://github.com/elycde/rofltg.git
-cd rofltg
-npm install
-copy .env.example .env
-notepad .env
-npm run build
-```
-
-**3. Запусти как Windows Service:**
-```bash
-npm install -g node-windows
-```
-
-Создай `service.js`:
-```javascript
-const Service = require('node-windows').Service;
-
-const svc = new Service({
-  name: 'RoflTG',
-  description: 'RoflTG Telegram Channel Website',
-  script: 'C:\\path\\to\\rofltg\\server\\server.js'
-});
-
-svc.on('install', () => svc.start());
-svc.install();
-```
-
-Запусти:
-```bash
-node service.js
-```
-
----
-
-### Docker (опционально)
-
-Создай `Dockerfile`:
+**Dockerfile:**
 ```dockerfile
 FROM node:18-alpine
 WORKDIR /app
@@ -337,10 +247,57 @@ EXPOSE 3000
 CMD ["npm", "run", "server"]
 ```
 
-Запусти:
+**Запуск:**
 ```bash
 docker build -t rofltg .
 docker run -d -p 3000:3000 --env-file .env --name rofltg rofltg
+```
+
+**Docker Compose:**
+```yaml
+version: '3.8'
+services:
+  rofltg:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    restart: unless-stopped
+```
+
+```bash
+docker-compose up -d
+```
+
+---
+
+### Systemd Service
+
+Создай `/etc/systemd/system/rofltg.service`:
+```ini
+[Unit]
+Description=RoflTG Telegram Channel Website
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/rofltg
+ExecStart=/usr/bin/npm run server
+Restart=on-failure
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Запусти:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable rofltg
+sudo systemctl start rofltg
+sudo systemctl status rofltg
 ```
 
 ## 🔒 Безопасность
@@ -349,6 +306,8 @@ docker run -d -p 3000:3000 --env-file .env --name rofltg rofltg
 - ✅ Используй `.env.example` как шаблон
 - ✅ Никогда не коммить токены и API ключи
 - ✅ `subs-history.json` исключен из git
+- ✅ Настрой firewall: `sudo ufw allow 3000/tcp`
+- ✅ Используй SSL сертификат для продакшна
 
 ## 📝 Changelog v2
 
@@ -378,11 +337,14 @@ MIT License - используй свободно для своих проект
 1. Проверь `.env` файл
 2. Убедись что порты 3000 и 5173 свободны
 3. Запусти `npm install` заново
-4. Проверь логи в консоли
+4. Проверь логи: `pm2 logs rofltg` или `journalctl -u rofltg -f`
 
-## 🔄 Обновление с v1
+## 🔄 Обновление
 
-1. Сохрани `subs-history.json` (если есть)
-2. Перенеси переменные из старого `.env`
-3. Запусти `npm install`
-4. Запусти проект
+```bash
+cd rofltg
+git pull origin main
+npm install
+npm run build
+pm2 restart rofltg
+```
