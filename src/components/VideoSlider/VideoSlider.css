@@ -1,0 +1,1155 @@
+/* === YouTube slider styles === */
+.video-strip-container {
+  width: min(1000px, 85vw);
+  margin: 14px auto 8px;
+  z-index: 2;
+  position: relative;
+  padding: 8px 0;
+}
+
+
+
+.video-section-header {
+  text-align: left;
+  margin: 48px auto 6px;
+  padding: 0 20px;
+  max-width: min(1000px, 85vw);
+  position: relative;
+}
+
+.video-section-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 8px 0;
+  background: linear-gradient(135deg, #74a0ff, #6c8bff, #00d4ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-align: left;
+  letter-spacing: -0.5px;
+}
+
+.video-section-subtitle {
+  font-size: 16px;
+  color: var(--muted);
+  margin: 0;
+  font-weight: 500;
+  text-align: left;
+}
+
+/* Контролы над треком */
+.video-controls {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 20px 16px 20px;
+  max-width: min(1000px, 85vw);
+  margin: 0 auto;
+}
+
+/* Фильтры */
+.video-filter-wrapper {
+  position: relative;
+}
+
+.filter-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.filter-button svg {
+  color: #74a0ff;
+}
+
+.filter-button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(116, 160, 255, 0.25);
+  color: var(--text);
+}
+
+.filter-button.active {
+  background: rgba(116, 160, 255, 0.12);
+  border-color: rgba(116, 160, 255, 0.3);
+  color: #74a0ff;
+}
+
+.filter-label {
+  user-select: none;
+}
+
+.filter-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+}
+
+.filter-dropdown {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  background: rgba(11, 15, 20, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 6px;
+  min-width: 200px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(16px);
+  z-index: 100;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filter-option {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.filter-option:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.filter-option.active {
+  background: rgba(116, 160, 255, 0.2);
+  color: #74a0ff;
+  font-weight: 600;
+}
+
+.filter-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 6px 0;
+}
+
+.video-strip {
+  display: block;
+  position: relative;
+}
+
+
+
+/* Кнопки навигации */
+.vs-btn {
+  position: absolute;
+  top: 45%;
+  transform: translateY(-50%);
+  width: 52px;
+  height: 52px;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  color: var(--text);
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 40px rgba(6, 7, 10, 0.7), 0 4px 12px rgba(116, 160, 255, 0.1);
+  backdrop-filter: blur(12px) saturate(120%);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.vs-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.vs-left {
+  left: -26px;
+}
+
+.vs-right {
+  right: -26px;
+}
+
+.vs-btn:hover:not(:disabled) {
+  transform: translateY(-50%) scale(1.05);
+  background: linear-gradient(135deg, rgba(116, 160, 255, 0.15), rgba(108, 139, 255, 0.08));
+  box-shadow: 0 16px 50px rgba(6, 7, 10, 0.8), 0 6px 20px rgba(116, 160, 255, 0.2);
+}
+
+.vs-btn:active:not(:disabled) {
+  transform: translateY(-50%) scale(0.95);
+}
+
+/* Трек */
+.vs-track {
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 20px 20px 20px 5px;
+  background: transparent;
+  border: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  align-items: start;
+  box-shadow: none;
+  backdrop-filter: none;
+  position: relative;
+}
+
+
+
+
+
+.vs-track::-webkit-scrollbar {
+  height: 12px;
+  display: none;
+}
+
+.vs-track {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.vs-track:focus {
+  outline: none;
+}
+
+.vs-items {
+  display: flex;
+  flex-direction: row;
+  gap: 18px;
+  padding-left: 0;
+}
+
+.vs-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: linear-gradient(180deg, rgba(6, 7, 10, 0.8), rgba(6, 7, 10, 0.4));
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+}
+
+.vs-loading .spinner {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.08);
+  border-top-color: #74a0ff;
+  box-shadow: 0 8px 24px rgba(116, 160, 255, 0.15);
+  animation: spin 1s linear infinite;
+}
+
+.vs-loading .vs-loading-text {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Карточки видео */
+.vs-item {
+  flex: 0 0 auto;
+  width: 300px;
+  min-width: 240px;
+  border-radius: 20px;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  scroll-snap-align: start;
+  position: relative;
+  overflow: hidden;
+}
+
+
+
+.vs-item:hover {
+  transform: translateY(-12px) scale(1.03);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45),
+    0 8px 24px rgba(116, 160, 255, 0.2);
+  border-color: rgba(116, 160, 255, 0.35);
+}
+
+/* Превью видео */
+.vs-thumb {
+  width: 100%;
+  height: 170px;
+  background: #0a0a0a;
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px 20px 0 0;
+  z-index: 1;
+}
+
+.vs-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.vs-item:hover .vs-thumb img {
+  transform: scale(1.05);
+}
+
+/* Информация о видео */
+.vs-info {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
+  min-height: 80px;
+  background: transparent;
+  position: relative;
+  z-index: 1;
+}
+
+.vs-title {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  margin-bottom: auto;
+}
+
+.vs-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.vs-date {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.vs-views {
+  font-size: 12px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.vs-empty {
+  padding: 32px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 16px;
+}
+
+/* Прогресс и индикаторы */
+.vs-progress-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.vs-progress-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.vs-progress-text {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 500;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.vs-indicators {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.vs-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s ease;
+}
+
+.vs-dot:hover {
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.vs-dot.active {
+  background: linear-gradient(135deg, #74a0ff, #6c8bff);
+  box-shadow: 0 4px 16px rgba(108, 139, 255, 0.3), 0 0 0 3px rgba(116, 160, 255, 0.1);
+  transform: scale(1.2);
+}
+
+/* Счетчик видео */
+.vs-counter {
+  text-align: center;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* Затемнение при наведении */
+.vs-thumb::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.vs-item:hover .vs-thumb::before {
+  opacity: 1;
+}
+
+/* Иконка воспроизведения */
+.vs-play-icon {
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  width: 60px;
+  height: 60px;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vs-play-icon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(116, 160, 255, 0.9);
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.vs-play-icon::after {
+  content: '';
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 10px 0 10px 16px;
+  border-color: transparent transparent transparent #ffffff;
+  margin-left: 3px;
+  position: relative;
+  z-index: 1;
+}
+
+.vs-item:hover .vs-play-icon {
+  opacity: 1;
+}
+
+.vs-item:hover .vs-play-icon::before {
+  transform: scale(1.1);
+}
+
+/* Адаптивность */
+@media (max-width: 920px) {
+  .vs-item {
+    width: 260px;
+  }
+
+  .vs-thumb {
+    height: 150px;
+  }
+
+  .vs-info {
+    min-height: 75px;
+    padding: 14px 16px;
+  }
+
+  .video-strip-container {
+    width: min(1000px, 94vw);
+    margin: 16px auto 10px;
+  }
+
+  .video-section-title {
+    font-size: 26px;
+  }
+
+  .video-section-subtitle {
+    font-size: 15px;
+  }
+
+  .vs-track {
+    padding: 20px 20px 20px 5px;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .vs-item {
+    flex: 0 0 200px;
+    min-width: 180px;
+  }
+
+  .vs-thumb {
+    height: 120px;
+  }
+
+  .vs-info {
+    min-height: 70px;
+    padding: 12px 14px;
+  }
+
+  .vs-title {
+    font-size: 15px;
+  }
+
+  .vs-date {
+    font-size: 12px;
+  }
+
+  .vs-views {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+
+  .vs-left {
+    left: -22px;
+  }
+
+  .vs-right {
+    right: -22px;
+  }
+
+  .vs-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+
+  .video-strip-container {
+    padding: 8px 0;
+    margin: 12px auto 10px;
+  }
+
+  .vs-track {
+    padding: 18px 18px 18px 5px;
+    gap: 14px;
+  }
+
+  .video-section-header {
+    padding: 0 16px;
+    margin: 24px auto 12px;
+  }
+
+  .video-section-title {
+    font-size: 22px;
+  }
+
+  .video-section-subtitle {
+    font-size: 14px;
+  }
+}
+
+/* Dro
+pdown стили */
+.filter-dropdown {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 0;
+  border-radius: 14px;
+  padding: 8px;
+  min-width: 220px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(116, 160, 255, 0.1);
+  z-index: 100;
+  animation: dropdownFadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.filter-group {
+  padding: 4px;
+}
+
+.filter-group-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 8px 12px 6px;
+  user-select: none;
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 4px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.filter-icon {
+  font-size: 14px;
+  color: var(--muted);
+  transition: color 0.15s ease;
+}
+
+.filter-option:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.filter-option:hover .filter-icon {
+  color: #74a0ff;
+}
+
+.filter-option.active {
+  background: rgba(116, 160, 255, 0.18);
+  color: #74a0ff;
+  font-weight: 600;
+}
+
+.filter-option.active .filter-icon {
+  color: #74a0ff;
+}
+
+.filter-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 8px 4px;
+}
+
+/* Доп
+олнительные стили для новых элементов фильтрации */
+.filter-sub-option {
+  padding: 8px 12px 4px 32px;
+  margin-top: 4px;
+}
+
+.filter-sub-option label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.filter-sub-option select {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.filter-sub-option select:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(116, 160, 255, 0.3);
+}
+
+.filter-sub-option select:focus {
+  outline: none;
+  border-color: #74a0ff;
+  box-shadow: 0 0 0 2px rgba(116, 160, 255, 0.2);
+}
+
+.test-button {
+  background: rgba(255, 193, 7, 0.1) !important;
+  color: #ffc107 !important;
+}
+
+.test-button:hover {
+  background: rgba(255, 193, 7, 0.2) !important;
+}
+
+.test-button .filter-icon {
+  color: #ffc107 !important;
+}
+
+/* Улучшенная анимация для трека при сбросе */
+.vs-track.resetting {
+  transition: transform 0.3s ease;
+}
+
+/* Индикатор активного фильтра */
+.filter-button.has-active-filters {
+  background: rgba(116, 160, 255, 0.15);
+  border-color: rgba(116, 160, 255, 0.4);
+  color: #74a0ff;
+}
+
+.filter-button.has-active-filters::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  background: #74a0ff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(11, 15, 20, 1);
+}
+
+/* Ани
+мация загрузки при смене фильтров */
+.vs-track.loading {
+  opacity: 0.6;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.vs-track.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #74a0ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 10;
+}
+
+/* Плавное появление видео после загрузки */
+.vs-items {
+  transition: opacity 0.4s ease;
+}
+
+.vs-track.loading .vs-items {
+  opacity: 0.3;
+}
+
+/* Улучшенная анимация для кнопки фильтров */
+.filter-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.filter-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(116, 160, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.filter-button.has-active-filters::before {
+  left: 100%;
+}
+
+/* Пульсация индикатора активных фильтров */
+.filter-button.has-active-filters::after {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+/* Информ
+ация о примененных фильтрах */
+.vs-filter-info {
+  font-size: 11px;
+  color: #74a0ff;
+  background: rgba(116, 160, 255, 0.1);
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(116, 160, 255, 0.2);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* 
+Заметка о фильтрах */
+.filter-note {
+  font-size: 11px;
+  color: var(--muted);
+  padding: 6px 12px;
+  margin-top: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  border-left: 2px solid rgba(116, 160, 255, 0.3);
+  font-style: italic;
+}
+
+/* 
+Улучшенная анимация загрузки при смене фильтров */
+.vs-track.loading {
+  opacity: 0.4;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  position: relative;
+}
+
+.vs-track.loading::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 7, 10, 0.8);
+  border-radius: 16px;
+  z-index: 9;
+  backdrop-filter: blur(4px);
+}
+
+.vs-track.loading::after {
+  content: '🔄';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 32px;
+  z-index: 10;
+  animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* Анимация появления видео после фильтрации */
+.vs-items {
+  transition: all 0.3s ease;
+}
+
+.vs-track.loading .vs-items {
+  opacity: 0.2;
+  transform: scale(0.98);
+}
+
+/* Пульсация кнопки фильтров при активности */
+.filter-button.loading {
+  animation: pulse-filter 0.8s ease-in-out infinite;
+}
+
+@keyframes pulse-filter {
+
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(116, 160, 255, 0.4);
+  }
+
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 8px rgba(116, 160, 255, 0);
+  }
+}
+
+/* Анимация сортировки */
+.vs-track.sorting .vs-items {
+  animation: sortingAnimation 0.4s ease;
+}
+
+@keyframes sortingAnimation {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  50% {
+    opacity: 0.3;
+    transform: translateY(-10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Анимация фильтрации */
+.vs-track.filtering .vs-items {
+  animation: filteringAnimation 0.4s ease;
+}
+
+@keyframes filteringAnimation {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.3;
+    transform: scale(0.95);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Disabled фильтр */
+.filter-option.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  position: relative;
+}
+
+.filter-option.disabled:hover {
+  background: transparent;
+}
+
+.filter-badge {
+  font-size: 10px;
+  color: #ffc107;
+  background: rgba(255, 193, 7, 0.15);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: auto;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* А
+нимация сортировки - каждая карточка анимируется отдельно */
+.vs-track.sorting .vs-item {
+  animation: sortingCardAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes sortingCardAnimation {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  25% {
+    opacity: 0.5;
+    transform: translateY(-20px) scale(0.95);
+  }
+
+  50% {
+    opacity: 0.2;
+    transform: translateY(-30px) scale(0.9);
+  }
+
+  75% {
+    opacity: 0.5;
+    transform: translateY(-20px) scale(0.95);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Задержка анимации для каждой карточки при сортировке */
+.vs-track.sorting .vs-item:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.vs-track.sorting .vs-item:nth-child(2) {
+  animation-delay: 0.05s;
+}
+
+.vs-track.sorting .vs-item:nth-child(3) {
+  animation-delay: 0.1s;
+}
+
+.vs-track.sorting .vs-item:nth-child(4) {
+  animation-delay: 0.15s;
+}
+
+.vs-track.sorting .vs-item:nth-child(5) {
+  animation-delay: 0.2s;
+}
+
+.vs-track.sorting .vs-item:nth-child(6) {
+  animation-delay: 0.25s;
+}
+
+.vs-track.sorting .vs-item:nth-child(7) {
+  animation-delay: 0.3s;
+}
+
+.vs-track.sorting .vs-item:nth-child(8) {
+  animation-delay: 0.35s;
+}
+
+.vs-track.sorting .vs-item:nth-child(9) {
+  animation-delay: 0.4s;
+}
+
+.vs-track.sorting .vs-item:nth-child(10) {
+  animation-delay: 0.45s;
+}
+
+/* Анимация фильтрации - карточки переворачиваются */
+.vs-track.filtering .vs-item {
+  animation: filteringCardAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes filteringCardAnimation {
+  0% {
+    opacity: 1;
+    transform: scale(1) rotateY(0deg);
+  }
+
+  50% {
+    opacity: 0.2;
+    transform: scale(0.85) rotateY(90deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) rotateY(0deg);
+  }
+}
+
+/* Задержка анимации для каждой карточки при фильтрации */
+.vs-track.filtering .vs-item:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.vs-track.filtering .vs-item:nth-child(2) {
+  animation-delay: 0.05s;
+}
+
+.vs-track.filtering .vs-item:nth-child(3) {
+  animation-delay: 0.1s;
+}
+
+.vs-track.filtering .vs-item:nth-child(4) {
+  animation-delay: 0.15s;
+}
+
+.vs-track.filtering .vs-item:nth-child(5) {
+  animation-delay: 0.2s;
+}
+
+.vs-track.filtering .vs-item:nth-child(6) {
+  animation-delay: 0.25s;
+}
+
+.vs-track.filtering .vs-item:nth-child(7) {
+  animation-delay: 0.3s;
+}
+
+.vs-track.filtering .vs-item:nth-child(8) {
+  animation-delay: 0.35s;
+}
+
+.vs-track.filtering .vs-item:nth-child(9) {
+  animation-delay: 0.4s;
+}
+
+.vs-track.filtering .vs-item:nth-child(10) {
+  animation-delay: 0.45s;
+}
+
+/* Отключаем hover эффекты во время анимации */
+.vs-track.sorting .vs-item:hover,
+.vs-track.filtering .vs-item:hover {
+  transform: translateY(0) scale(1);
+  box-shadow: 0 12px 40px rgba(6, 7, 10, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.vs-track.sorting .vs-item::before,
+.vs-track.filtering .vs-item::before {
+  opacity: 0 !important;
+}
