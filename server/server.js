@@ -230,14 +230,14 @@ app.get('/api/shorts', async (req, res) => {
 
   try {
     const url = `https://www.youtube.com/@${encodeURIComponent(handle)}/shorts`;
-    
+
     const resp = await fetch(url);
     if (!resp.ok) {
       return res.json({ items: [] });
     }
-    
+
     const html = await resp.text();
-    
+
     // Парсим ytInitialData
     const idx = html.indexOf('ytInitialData');
     if (idx === -1) {
@@ -276,19 +276,19 @@ app.get('/api/shorts', async (req, res) => {
     const found = [];
     const walk = (obj) => {
       if (!obj || typeof obj !== 'object') return;
-      
+
       // Ищем reelItemRenderer для Shorts
       if (obj.reelItemRenderer && obj.reelItemRenderer.videoId) {
         found.push(obj.reelItemRenderer);
         return;
       }
-      
+
       // Также ищем videoRenderer (на случай если Shorts представлены как обычные видео)
       if (obj.videoRenderer && obj.videoRenderer.videoId) {
         found.push(obj.videoRenderer);
         return;
       }
-      
+
       for (const k of Object.keys(obj)) {
         try {
           walk(obj[k]);
@@ -300,13 +300,13 @@ app.get('/api/shorts', async (req, res) => {
 
     const items = found.slice(0, maxResults).map(vr => {
       const vid = vr.videoId;
-      
+
       // Для reelItemRenderer
       if (vr.headline) {
         const title = vr.headline.simpleText || 'Short видео';
         const thumbs = vr.thumbnail && vr.thumbnail.thumbnails ? vr.thumbnail.thumbnails : null;
         const thumb = Array.isArray(thumbs) && thumbs.length ? thumbs[thumbs.length - 1].url : null;
-        
+
         let viewCount = 0;
         if (vr.viewCountText) {
           const viewText = vr.viewCountText.simpleText || '';
@@ -331,7 +331,7 @@ app.get('/api/shorts', async (req, res) => {
           source: 'shorts'
         };
       }
-      
+
       // Для videoRenderer
       const title = vr.title && vr.title.runs && vr.title.runs[0] && vr.title.runs[0].text ?
         vr.title.runs[0].text : (vr.title && vr.title.simpleText) || 'Short видео';
@@ -401,7 +401,7 @@ app.get('/api/videos', async (req, res) => {
   const cacheKey = `${handle}:${maxResults}`;
   const TTL = 120 * 1000; // 2 minutes
   const cached = videosCache.get(cacheKey);
-  
+
   if (cached && (Date.now() - cached.ts) < TTL) {
     return res.json({ items: cached.items, cached: true });
   }
@@ -566,62 +566,62 @@ app.get('/api/videos', async (req, res) => {
       if (!allVideos.length) return null;
 
       const itemsFromPage = allVideos
-          .map(vr => {
-            const vid = vr.videoId;
-            const title = vr.title && vr.title.runs && vr.title.runs[0] && vr.title.runs[0].text ?
-              vr.title.runs[0].text : (vr.title && vr.title.simpleText) || 'Видео';
-            const thumbs = vr.thumbnail && vr.thumbnail.thumbnails ? vr.thumbnail.thumbnails : null;
-            const thumb = Array.isArray(thumbs) && thumbs.length ? thumbs[thumbs.length - 1].url : null;
-            const published = vr.publishedTimeText && (vr.publishedTimeText.simpleText ||
-              (vr.publishedTimeText.runs && vr.publishedTimeText.runs[0] && vr.publishedTimeText.runs[0].text)) || null;
+        .map(vr => {
+          const vid = vr.videoId;
+          const title = vr.title && vr.title.runs && vr.title.runs[0] && vr.title.runs[0].text ?
+            vr.title.runs[0].text : (vr.title && vr.title.simpleText) || 'Видео';
+          const thumbs = vr.thumbnail && vr.thumbnail.thumbnails ? vr.thumbnail.thumbnails : null;
+          const thumb = Array.isArray(thumbs) && thumbs.length ? thumbs[thumbs.length - 1].url : null;
+          const published = vr.publishedTimeText && (vr.publishedTimeText.simpleText ||
+            (vr.publishedTimeText.runs && vr.publishedTimeText.runs[0] && vr.publishedTimeText.runs[0].text)) || null;
 
-            let viewCount = 0;
-            if (vr.viewCountText) {
-              const viewText = vr.viewCountText.simpleText ||
-                (vr.viewCountText.runs && vr.viewCountText.runs[0] && vr.viewCountText.runs[0].text) || '';
-              const viewMatch = viewText.match(/([0-9,.\s]+)/);
-              if (viewMatch) {
-                const numStr = viewMatch[1].replace(/[,\s]/g, '');
-                const num = parseInt(numStr, 10);
-                if (!isNaN(num)) viewCount = num;
+          let viewCount = 0;
+          if (vr.viewCountText) {
+            const viewText = vr.viewCountText.simpleText ||
+              (vr.viewCountText.runs && vr.viewCountText.runs[0] && vr.viewCountText.runs[0].text) || '';
+            const viewMatch = viewText.match(/([0-9,.\s]+)/);
+            if (viewMatch) {
+              const numStr = viewMatch[1].replace(/[,\s]/g, '');
+              const num = parseInt(numStr, 10);
+              if (!isNaN(num)) viewCount = num;
+            }
+          }
+
+          // Определяем длительность видео
+          let durationSeconds = 0;
+          let isShort = vr.isShort || false;
+
+          // Проверяем длительность из lengthText
+          if (vr.lengthText && vr.lengthText.simpleText) {
+            const duration = vr.lengthText.simpleText;
+            // Парсим длительность в формате M:SS или H:MM:SS
+            const match = duration.match(/^(?:(\d+):)?(\d+):(\d+)$/);
+            if (match) {
+              const hours = parseInt(match[1] || 0);
+              const minutes = parseInt(match[2]);
+              const seconds = parseInt(match[3]);
+              durationSeconds = hours * 3600 + minutes * 60 + seconds;
+
+              // Если длительность <= 60 секунд, считаем это Short
+              if (durationSeconds <= 60) {
+                isShort = true;
               }
             }
+          }
 
-            // Определяем длительность видео
-            let durationSeconds = 0;
-            let isShort = vr.isShort || false;
-
-            // Проверяем длительность из lengthText
-            if (vr.lengthText && vr.lengthText.simpleText) {
-              const duration = vr.lengthText.simpleText;
-              // Парсим длительность в формате M:SS или H:MM:SS
-              const match = duration.match(/^(?:(\d+):)?(\d+):(\d+)$/);
-              if (match) {
-                const hours = parseInt(match[1] || 0);
-                const minutes = parseInt(match[2]);
-                const seconds = parseInt(match[3]);
-                durationSeconds = hours * 3600 + minutes * 60 + seconds;
-                
-                // Если длительность <= 60 секунд, считаем это Short
-                if (durationSeconds <= 60) {
-                  isShort = true;
-                }
-              }
-            }
-
-            return {
-              id: vid,
-              title,
-              description: null,
-              thumbnail: thumb,
-              publishedAt: published,
-              viewCount,
-              url: vid ? `https://www.youtube.com/watch?v=${vid}` : null,
-              durationSeconds,
-              isShort,
-              source: vr.source || 'unknown'
-            };
-          });
+          return {
+            id: vid,
+            title,
+            description: null,
+            thumbnail: thumb,
+            publishedAt: published,
+            viewCount,
+            url: vid ? `https://www.youtube.com/watch?v=${vid}` : null,
+            durationSeconds,
+            isShort,
+            source: vr.source || 'unknown'
+          };
+        });
 
       return itemsFromPage;
     };
@@ -656,6 +656,378 @@ app.get('/api/videos', async (req, res) => {
       (err && err.message) || String(err);
 
     res.status(status).json({ error: message });
+  }
+});
+
+// Кеш для постов
+let postsCache = null;
+let postsCacheTime = 0;
+const POSTS_CACHE_TTL = 5 * 60 * 1000; // 5 минут
+
+// TGStat API Token
+const TGSTAT_TOKEN = process.env.TGSTAT_TOKEN;
+
+// API для получения постов из канала
+app.get("/api/posts", async (req, res) => {
+  try {
+    // Проверяем кеш
+    if (postsCache && Date.now() - postsCacheTime < POSTS_CACHE_TTL) {
+      return res.json(postsCache);
+    }
+
+    const channelUsername = CHAT_ID.replace('@', '');
+    
+    // Сначала пробуем прочитать из JSON файла (Python парсер)
+    const POSTS_FILE = path.join(__dirname, 'telegram-posts.json');
+    try {
+      const fileData = await fs.readFile(POSTS_FILE, 'utf8');
+      const jsonData = JSON.parse(fileData);
+      console.log(`✓ Loaded ${jsonData.posts.length} posts from Python parser`);
+      
+      postsCache = jsonData;
+      postsCacheTime = Date.now();
+      
+      return res.json(jsonData);
+    } catch (fileError) {
+      console.log('JSON file not found, trying TGStat API...');
+    }
+    
+    // Fallback на TGStat API
+    if (TGSTAT_TOKEN) {
+      try {
+        console.log('Fetching posts from TGStat API...');
+        console.log('Channel:', channelUsername);
+        
+        const allPosts = [];
+        let offset = 0;
+        const limit = 50;
+        const maxRequests = 3; // Максимум 3 запроса = 150 постов
+        
+        // Делаем несколько запросов с пагинацией
+        for (let i = 0; i < maxRequests; i++) {
+          const tgstatUrl = `https://api.tgstat.ru/channels/posts?token=${TGSTAT_TOKEN}&channelId=${channelUsername}&limit=${limit}&offset=${offset}&extended=1`;
+          const tgstatResponse = await fetch(tgstatUrl);
+          const tgstatData = await tgstatResponse.json();
+          
+          if (tgstatData.status === 'error') {
+            console.error('TGStat API error:', tgstatData.error || 'Unknown error');
+            break;
+          }
+          
+          if (tgstatData.status === 'ok' && tgstatData.response && tgstatData.response.items) {
+            allPosts.push(...tgstatData.response.items);
+            console.log(`Fetched ${tgstatData.response.items.length} posts (offset: ${offset})`);
+            
+            // Если получили меньше чем limit - больше постов нет
+            if (tgstatData.response.items.length < limit) break;
+            
+            offset += limit;
+          } else {
+            break;
+          }
+        }
+        
+        console.log(`Total fetched: ${allPosts.length} posts from TGStat API`);
+        
+        if (allPosts.length > 0) {
+          const posts = [];
+          
+          for (const item of allPosts) {
+            // Пропускаем удаленные посты
+            if (item.is_deleted === 1) continue;
+            
+            const text = item.text || '';
+            let photo = null;
+            
+            // Извлекаем медиа
+            if (item.media) {
+              // Фото
+              if (item.media.media_type === 'mediaPhoto' && item.media.file_url) {
+                photo = item.media.file_url;
+              }
+              // Видео превью
+              else if (item.media.media_type === 'mediaDocument' && item.media.file_thumbnail_url) {
+                photo = item.media.file_thumbnail_url;
+              }
+              // Стикеры (webp)
+              else if (item.media.mime_type === 'image/webp' && item.media.file_url) {
+                photo = item.media.file_url;
+              }
+            }
+            
+            // Извлекаем YouTube превью из текста
+            if (text && !photo) {
+              const youtubeMatch = text.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+              if (youtubeMatch) {
+                const videoId = youtubeMatch[1];
+                photo = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+              }
+            }
+            
+            // Очищаем HTML из текста
+            let cleanText = text
+              .replace(/<a[^>]*>(.*?)<\/a>/g, '$1')  // Убираем теги <a>
+              .replace(/<[^>]+>/g, '')  // Убираем все HTML теги
+              .replace(/&quot;/g, '"')
+              .replace(/&amp;/g, '&')
+              .replace(/&lt;/g, '<')
+              .replace(/&gt;/g, '>')
+              .trim();
+            
+            // Минимальная проверка - хоть что-то должно быть
+            if (!cleanText && !photo) continue;
+            
+            posts.push({
+              id: item.id,
+              text: cleanText.substring(0, 300),
+              date: item.date * 1000,
+              views: item.views || 0,
+              reactions: 0, // TGStat не предоставляет реакции в базовом API
+              photo
+            });
+          }
+          
+          console.log(`✓ Parsed ${posts.length} posts from ${allPosts.length} items`);
+          
+          // Сортируем по просмотрам
+          posts.sort((a, b) => b.views - a.views);
+          
+          const result = {
+            posts,
+            channel: {
+              username: channelUsername,
+              title: channelUsername,
+              photo: `https://t.me/i/userpic/320/${channelUsername}.jpg`
+            }
+          };
+          
+          // Не возвращаем сразу - продолжим парсить HTML для большего количества
+          console.log('Continuing to HTML parsing to get more posts...');
+        }
+      } catch (tgstatError) {
+        console.error('TGStat API error:', tgstatError.message);
+        console.log('Falling back to HTML parsing');
+      }
+    }
+
+    // Fallback на HTML парсинг
+    // Пробуем несколько URL для получения большего количества постов
+    const urls = [
+      `https://t.me/s/${channelUsername}`,
+      `https://t.me/s/${channelUsername}?embed=1`,
+      `https://t.me/s/${channelUsername}?before=9999999999`
+    ];
+
+    let allHtml = '';
+
+    for (const url of urls) {
+      try {
+        const response = await fetch(url);
+        const html = await response.text();
+        allHtml += html;
+        console.log(`Fetched from ${url}, length: ${html.length}`);
+      } catch (e) {
+        console.error(`Error fetching ${url}:`, e.message);
+      }
+    }
+
+    console.log(`Total HTML length: ${allHtml.length}`);
+
+    const posts = [];
+
+    // Простой подход - ищем все блоки сообщений
+    const messages = allHtml.split('class="tgme_widget_message ');
+    console.log(`Found ${messages.length - 1} message blocks total`);
+
+    // Используем Set для уникальности постов по тексту
+    const uniquePosts = new Map();
+    let skippedNoText = 0;
+    let skippedNoContent = 0;
+
+    for (let i = 1; i < messages.length; i++) {
+      const messageBlock = messages[i];
+
+      // Извлекаем текст
+      const textMatch = messageBlock.match(/<div class="tgme_widget_message_text[^"]*"[^>]*>(.*?)<\/div>/s);
+      if (!textMatch) {
+        skippedNoText++;
+        // Может быть пост без текста но с медиа - продолжаем
+      }
+
+      let text = textMatch ? textMatch[1]
+        .replace(/<br\s*\/?>/g, '\n')
+        .replace(/<[^>]+>/g, '')
+        .replace(/&quot;/g, '"')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&#\d+;/g, '')
+        .trim() : '';
+
+      // Извлекаем фото/видео превью
+      let photo = null;
+
+      // Ищем любое изображение (фото или видео превью)
+      const photoMatch = messageBlock.match(/background-image:url\('([^']+)'\)/);
+      if (photoMatch) {
+        const photoUrl = photoMatch[1];
+        if (!photoUrl.includes('/emoji/')) {
+          photo = photoUrl.startsWith('//') ? 'https:' + photoUrl : photoUrl;
+        }
+      }
+
+      // Если в тексте есть YouTube ссылка - извлекаем превью
+      if (text && !photo) {
+        const youtubeMatch = text.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+        if (youtubeMatch) {
+          const videoId = youtubeMatch[1];
+          photo = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+        }
+      }
+
+      // Минимальная проверка - хоть что-то должно быть
+      if (!text && !photo) {
+        skippedNoContent++;
+        continue;
+      }
+
+      // Извлекаем дату
+      const dateMatch = messageBlock.match(/<time[^>]*datetime="([^"]+)"/);
+      const date = dateMatch ? new Date(dateMatch[1]).getTime() : Date.now();
+
+      // Извлекаем просмотры
+      let views = 0;
+      const viewsMatch = messageBlock.match(/<span class="tgme_widget_message_views">([^<]+)</);
+      if (viewsMatch) {
+        const viewsText = viewsMatch[1].trim();
+        if (viewsText.includes('K')) {
+          views = parseFloat(viewsText) * 1000;
+        } else if (viewsText.includes('M')) {
+          views = parseFloat(viewsText) * 1000000;
+        } else {
+          views = parseInt(viewsText.replace(/\s/g, '')) || 0;
+        }
+      }
+
+      // Извлекаем реакции
+      let reactions = 0;
+      const reactionsMatch = messageBlock.match(/<span class="tgme_widget_message_reactions_count">([^<]+)</);
+      if (reactionsMatch) {
+        reactions = parseInt(reactionsMatch[1].replace(/\s/g, '')) || 0;
+      }
+
+      const postData = {
+        text: text ? text.substring(0, 300) : '',
+        date,
+        views,
+        reactions,
+        photo
+      };
+
+      // Используем текст+дату как ключ для уникальности
+      const key = `${text}_${date}`;
+      if (!uniquePosts.has(key)) {
+        uniquePosts.set(key, postData);
+      }
+    }
+
+    // Конвертируем Map в массив
+    let postId = 1;
+    for (const postData of uniquePosts.values()) {
+      posts.push({
+        id: postId++,
+        ...postData
+      });
+      if (posts.length >= 50) break;
+    }
+
+    console.log(`Skipped: ${skippedNoText} without text block, ${skippedNoContent} without any content`);
+    console.log(`Successfully parsed ${posts.length} unique posts (with text or media)`);
+
+    // Сортируем по просмотрам
+    posts.sort((a, b) => b.views - a.views);
+
+    // Если не удалось спарсить, возвращаем демо посты
+    if (posts.length === 0) {
+      posts.push(
+        {
+          id: 1,
+          text: "🎮 Новое видео на канале! Смотрите прямо сейчас",
+          date: Date.now() - 3600000,
+          photo: null
+        },
+        {
+          id: 2,
+          text: "🔥 Сегодня разбираем самые горячие новости игровой индустрии. Не пропустите!",
+          date: Date.now() - 7200000,
+          photo: null
+        },
+        {
+          id: 3,
+          text: "💎 Эксклюзивный контент только для подписчиков",
+          date: Date.now() - 10800000,
+          photo: null
+        },
+        {
+          id: 4,
+          text: "⚡ Молниеносные обновления каждый день!",
+          date: Date.now() - 14400000,
+          photo: null
+        },
+        {
+          id: 5,
+          text: "🎯 Подписывайся и будь в курсе всех событий! Только у нас самая актуальная информация",
+          date: Date.now() - 18000000,
+          photo: null
+        }
+      );
+    }
+
+    const result = {
+      posts: posts,
+      channel: {
+        username: channelUsername,
+        title: channelUsername,
+        photo: `https://t.me/i/userpic/320/${channelUsername}.jpg`
+      }
+    };
+
+    // Сохраняем в кеш
+    postsCache = result;
+    postsCacheTime = Date.now();
+
+    res.json(result);
+  } catch (err) {
+    console.error('Error fetching posts:', err);
+
+    // Возвращаем демо посты при ошибке
+    res.json({
+      posts: [
+        {
+          id: 1,
+          text: "🎮 Новое видео на канале! Смотрите прямо сейчас",
+          date: Date.now() - 3600000,
+          photo: null
+        },
+        {
+          id: 2,
+          text: "🔥 Сегодня разбираем самые горячие новости. Не пропустите!",
+          date: Date.now() - 7200000,
+          photo: null
+        },
+        {
+          id: 3,
+          text: "💎 Эксклюзивный контент только для подписчиков",
+          date: Date.now() - 10800000,
+          photo: null
+        }
+      ],
+      channel: {
+        username: "fromoldnuke7",
+        title: "fromoldnuke7",
+        photo: "https://t.me/i/userpic/320/fromoldnuke7.jpg"
+      }
+    });
   }
 });
 

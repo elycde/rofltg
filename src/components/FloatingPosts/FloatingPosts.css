@@ -1,0 +1,201 @@
+/* Всплывающий пост в стиле YouTube карточек */
+.floating-post {
+  position: fixed;
+  width: 350px;
+  max-width: 90vw;
+  background: linear-gradient(135deg, rgba(15, 20, 28, 0.98), rgba(20, 25, 35, 0.98));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6),
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(116, 160, 255, 0.1);
+  backdrop-filter: blur(16px);
+  cursor: pointer;
+  z-index: 9999;
+  animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.floating-post:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.7),
+    0 12px 32px rgba(116, 160, 255, 0.2),
+    0 0 0 1px rgba(116, 160, 255, 0.2);
+  border-color: rgba(116, 160, 255, 0.2);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Кнопка закрытия */
+.floating-post-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--text);
+  border-radius: 50%;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+}
+
+.floating-post-close:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: scale(1.1);
+}
+
+/* Медиа (фото) */
+.floating-post-media {
+  width: 100%;
+  max-height: 250px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.floating-post-image {
+  width: 100%;
+  height: auto;
+  max-height: 250px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Тело поста */
+.floating-post-body {
+  padding: 16px;
+}
+
+/* Хедер поста */
+.floating-post-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.floating-post-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid rgba(116, 160, 255, 0.2);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.floating-post-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.floating-post-channel {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.floating-post-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.floating-post-stat {
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.floating-post-date {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Контент поста */
+.floating-post-content {
+  margin-bottom: 12px;
+}
+
+.floating-post-text {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+  margin: 0;
+  word-wrap: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Футер */
+.floating-post-footer {
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.floating-post-cta {
+  font-size: 12px;
+  color: #74a0ff;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Адаптивность */
+@media (max-width: 640px) {
+  .floating-post {
+    width: 90vw;
+    max-width: 350px;
+    left: 5vw !important;
+  }
+  
+  .floating-post-media {
+    height: 180px;
+  }
+}
+
+/* Анимация исчезновения */
+.floating-post.hiding {
+  animation: slideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+}

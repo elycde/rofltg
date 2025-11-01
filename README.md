@@ -164,6 +164,100 @@ npm start
 
 ---
 
+### Cloudflare Tunnel (рекомендуется для x-ui серверов)
+
+Идеально подходит если у тебя заняты порты 443/8080 (например x-ui). Не требует открытия портов!
+
+**1. Установи cloudflared:**
+```bash
+wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+sudo dpkg -i cloudflared-linux-amd64.deb
+```
+
+**2. Авторизуйся в Cloudflare:**
+```bash
+cloudflared tunnel login
+```
+Откроется браузер - выбери свой домен и разреши доступ.
+
+**3. Создай туннель:**
+```bash
+cloudflared tunnel create rofltg
+```
+Запомни `Tunnel ID` из вывода.
+
+**4. Создай конфиг:**
+```bash
+mkdir -p ~/.cloudflared
+nano ~/.cloudflared/config.yml
+```
+
+Вставь (замени `<TUNNEL-ID>` на свой):
+```yaml
+tunnel: <TUNNEL-ID>
+credentials-file: /root/.cloudflared/<TUNNEL-ID>.json
+
+ingress:
+  - hostname: rofltg.yourdomain.com
+    service: http://localhost:3000
+  - service: http_status:404
+```
+
+**5. Привяжи домен:**
+```bash
+cloudflared tunnel route dns rofltg rofltg.yourdomain.com
+```
+
+**6. Запусти сайт:**
+```bash
+cd ~/rofltg
+npm run build
+pm2 start npm --name "rofltg" -- run server
+pm2 save
+```
+
+**7. Запусти туннель как сервис:**
+```bash
+sudo cloudflared service install
+sudo systemctl start cloudflared
+sudo systemctl enable cloudflared
+```
+
+**8. Проверь статус:**
+```bash
+sudo systemctl status cloudflared
+pm2 status
+```
+
+Готово! Сайт доступен на `https://rofltg.yourdomain.com` (автоматический SSL)
+
+**Управление:**
+```bash
+# Логи туннеля
+sudo journalctl -u cloudflared -f
+
+# Перезапуск туннеля
+sudo systemctl restart cloudflared
+
+# Остановка туннеля
+sudo systemctl stop cloudflared
+
+# Список туннелей
+cloudflared tunnel list
+
+# Удалить туннель
+cloudflared tunnel delete rofltg
+```
+
+**Преимущества:**
+- ✅ Не нужно открывать порты
+- ✅ Автоматический SSL сертификат
+- ✅ Защита от DDoS через Cloudflare
+- ✅ Работает параллельно с x-ui без конфликтов
+- ✅ Бесплатно
+
+---
+
 ### Продакшн с PM2 (рекомендуется)
 
 **1. Установи PM2:**

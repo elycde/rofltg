@@ -3,6 +3,7 @@ import LoadingScreen from './components/LoadingScreen/LoadingScreen'
 import Header from './components/Header/Header'
 import VideoSlider from './components/VideoSlider/VideoSlider'
 import SnowEffect from './components/SnowEffect/SnowEffect'
+import FloatingPosts from './components/FloatingPosts/FloatingPosts'
 import { useChannelData } from './hooks/useChannelData'
 import { useTitleAnimation } from './hooks/useTitleAnimation'
 
@@ -46,6 +47,7 @@ function App() {
     <>
       <LoadingScreen isVisible={isLoading} />
       <SnowEffect />
+      <FloatingPosts />
       
       {/* Аврора фон */}
       <div className="aurora">
