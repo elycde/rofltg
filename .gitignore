@@ -39,3 +39,7 @@ subs-history.json
 # Build outputs
 build/
 out/
+
+# Next.js
+.next/
+next-env.d.ts

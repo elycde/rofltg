@@ -12,7 +12,7 @@ function SnowEffect() {
 
     const ctx = canvas.getContext('2d')
     let w = 0, h = 0, ratio = 1
-    const config = { density: 0.0007, maxSize: 3.2, speed: 0.6, wind: 0.2 }
+    const config = { density: 0.0005, maxSize: 3.2, speed: 0.6, wind: 0.2 }
 
     const resize = () => {
       ratio = window.devicePixelRatio || 1

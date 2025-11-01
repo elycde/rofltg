@@ -1,26 +1,25 @@
-import { useState, useEffect } from 'react'
-import LoadingScreen from './components/LoadingScreen/LoadingScreen'
-import Header from './components/Header/Header'
-import VideoSlider from './components/VideoSlider/VideoSlider'
-import SnowEffect from './components/SnowEffect/SnowEffect'
-import FloatingPosts from './components/FloatingPosts/FloatingPosts'
-import { useChannelData } from './hooks/useChannelData'
-import { useTitleAnimation } from './hooks/useTitleAnimation'
+'use client'
 
-function App() {
+import { useState, useEffect } from 'react'
+import LoadingScreen from '../src/components/LoadingScreen/LoadingScreen'
+import Header from '../src/components/Header/Header'
+import VideoSlider from '../src/components/VideoSlider/VideoSlider'
+import SnowEffect from '../src/components/SnowEffect/SnowEffect'
+import FloatingPosts from '../src/components/FloatingPosts/FloatingPosts'
+import { useChannelData } from '../src/hooks/useChannelData'
+import { useTitleAnimation } from '../src/hooks/useTitleAnimation'
+
+export default function Home() {
   const [isLoading, setIsLoading] = useState(true)
   const [componentsLoaded, setComponentsLoaded] = useState(false)
   const { channelData, isLoadingChannel } = useChannelData()
   
   useTitleAnimation()
 
-  // Проверка загрузки всех компонентов
   useEffect(() => {
     const checkAllLoaded = () => {
-      // Минимальное время загрузки
       const minLoadTime = new Promise(resolve => setTimeout(resolve, 1500))
       
-      // Ждем загрузки данных канала
       const dataLoaded = new Promise(resolve => {
         if (!isLoadingChannel) {
           resolve()
@@ -49,7 +48,6 @@ function App() {
       <SnowEffect />
       <FloatingPosts />
       
-      {/* Аврора фон */}
       <div className="aurora">
         <span className="a1"></span>
         <span className="a2"></span>
@@ -72,5 +70,3 @@ function App() {
     </>
   )
 }
-
-export default App

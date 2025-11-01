@@ -58,6 +58,9 @@
   gap: 8px;
   padding: 8px 14px;
   border-radius: 10px;
+  background: linear-gradient(135deg, rgba(15, 20, 28, 0.8), rgba(20, 25, 35, 0.8));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
   color: var(--text);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -287,6 +290,9 @@
   color: inherit;
   display: flex;
   flex-direction: column;
+  background: linear-gradient(135deg, rgba(15, 20, 28, 0.95), rgba(20, 25, 35, 0.95));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),

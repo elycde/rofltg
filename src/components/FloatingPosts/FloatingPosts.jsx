@@ -52,8 +52,6 @@ const FloatingPosts = () => {
 
         setPosts(allPosts);
         setChannelInfo(data.channel);
-
-        console.log('Loaded posts:', allPosts.length);
       } catch (error) {
         console.error('Failed to fetch posts:', error);
       }
@@ -88,8 +86,6 @@ const FloatingPosts = () => {
         setPosition({ x, y });
         setVisiblePost(post);
         setIsHiding(false);
-
-        console.log(`Showing post ${nextIndex + 1}/${posts.length}:`, post.text ? post.text.substring(0, 50) : 'Media only');
         
         return nextIndex + 1;
       });
@@ -105,7 +101,6 @@ const FloatingPosts = () => {
         setTimeout(() => {
           setVisiblePost(null);
           setIsHiding(false);
-          console.log('Post hidden');
         }, 300);
       }, displayDuration);
     };
@@ -160,11 +155,7 @@ const FloatingPosts = () => {
             alt="Post media"
             className="floating-post-image"
             onError={(e) => {
-              console.error('Failed to load image:', visiblePost.photo);
               e.target.style.display = 'none';
-            }}
-            onLoad={() => {
-              console.log('Image loaded:', visiblePost.photo);
             }}
           />
         </div>
@@ -205,7 +196,7 @@ const FloatingPosts = () => {
         </div>
 
         <div className="floating-post-footer">
-          <span className="floating-post-cta">Перейти в канал →</span>
+          <span className="floating-post-cta">Нажми, чтобы посмотреть всё.</span>
         </div>
       </div>
     </div>
